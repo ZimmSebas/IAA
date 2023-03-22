@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as mpl
+from matplotlib import pyplot as mpl
 
 
 def centros_ej1(d):
@@ -43,15 +43,29 @@ def generar_valores(centros, c, d, n):
         .multivariate_normal(mean=c_2, cov=dev_mat, size=n // 2)
         .tolist()
     )
-    values = (values_centro_1, values_centro_2)
-    dataframe = pd.DataFrame(values)
+    dataframe_1 = pd.DataFrame(values_centro_1)
+    dataframe_2 = pd.DataFrame(values_centro_2)
+    dataframe = (dataframe_1,dataframe_2)
+
     return dataframe
 
 
 def plot(df):
-    print(df[0])
-    mpl.scatter(df[0], "r+", label="Clase 0")
-    mpl.scatter(df[1], "bo", label="Clase 1")
+    df_1, df_2 = df
+    print(df_1)
+    print(df_1[0])
+    print(df_1[1])
+    
+    
+    axis = df_1.plot.scatter(0,1, color = "DarkBlue" , label="Clase 0")
+    df_2.plot.scatter(0,1, color = "DarkGreen",  label="Clase 1", ax=axis)
+    
+    axis.set_xlabel('x')
+    axis.set_ylabel('y')
+    
+    axis.grid(which='both', color='grey', linewidth=1, linestyle='-')
+    # mpl.scatter(df_1[0], df_1[1], "r+", label="Clase 0")
+    # mpl.scatter(df_2[0], df_2[1], "bo", label="Clase 1")
     mpl.show()
 
 
@@ -69,13 +83,14 @@ def test_ej_a():
     n = 200
     c = 0.75
     centros = centros_ej1(d)
-    (valores_clase_1, valores_clase_2) = generar_valores(centros, c, d, n)
-    plot(valores_clase_1, valores_clase_2)
+    dataframe = generar_valores(centros, c, d, n)
+    plot(dataframe)
 
 
 def test_ej_b():
     d = 2
     n = 200
+    c = 0.75
     centros = centros_ej2(d)
-    (valores_clase_1, valores_clase_2) = generar_valores(centros, c, d, n)
-    plot(valores_clase_1, valores_clase_2)
+    dataframe = generar_valores(centros, c, d, n)
+    plot(dataframe)
