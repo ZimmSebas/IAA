@@ -31,7 +31,7 @@ def centros_ej2(d):
 
 def generar_valores(centros, c, d, n):
     (c_1, c_2) = centros
-    std_dev = c**2
+    std_dev = c ** 2
     dev_mat = np.diag([std_dev] * d)
     values_centro_1 = (
         np.random.default_rng()
@@ -43,30 +43,27 @@ def generar_valores(centros, c, d, n):
         .multivariate_normal(mean=c_2, cov=dev_mat, size=n // 2)
         .tolist()
     )
-    dataframe_1 = pd.DataFrame(values_centro_1)
-    dataframe_2 = pd.DataFrame(values_centro_2)
-    dataframe = (dataframe_1,dataframe_2)
+
+    values_centro_1 = [v + [0] for v in values_centro_1]
+    values_centro_2 = [v + [1] for v in values_centro_2]
+
+    dataframe = pd.DataFrame(
+        (values_centro_1 + values_centro_2), columns=["X", "Y", "Class"]
+    )
 
     return dataframe
 
 
 def plot(df):
-    df_1, df_2 = df
-    print(df_1)
-    print(df_1[0])
-    print(df_1[1])
-    
-    
-    axis = df_1.plot.scatter(0,1, color = "DarkBlue" , label="Clase 0")
-    df_2.plot.scatter(0,1, color = "DarkGreen",  label="Clase 1", ax=axis)
-    
-    axis.set_xlabel('x')
-    axis.set_ylabel('y')
-    
-    axis.grid(which='both', color='grey', linewidth=1, linestyle='-')
-    # mpl.scatter(df_1[0], df_1[1], "r+", label="Clase 0")
-    # mpl.scatter(df_2[0], df_2[1], "bo", label="Clase 1")
-    mpl.show()
+    print(df)
+
+    # axis = df_1.plot.scatter(0, 1, color="DarkBlue", label="Clase 0")
+
+    # axis.set_xlabel("x")
+    # axis.set_ylabel("y")
+
+    # axis.grid(which="both", color="grey", linewidth=1, linestyle="-")
+    # mpl.show()
 
 
 def pretest():
