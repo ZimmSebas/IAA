@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as mpl
 
 
-def centros_ej1(d):
+def centros_eja(d):
     c_1 = []
     c_2 = []
 
@@ -14,7 +14,7 @@ def centros_ej1(d):
     return (c_1, c_2)
 
 
-def centros_ej2(d):
+def centros_ejb(d):
     c_1 = []
     c_2 = []
 
@@ -47,22 +47,22 @@ def generar_valores(centros, c, d, n):
     values_centro_1 = [v + [0] for v in values_centro_1]
     values_centro_2 = [v + [1] for v in values_centro_2]
 
+    print(values_centro_1)
+
     dataframe = pd.DataFrame(
-        (values_centro_1 + values_centro_2), columns=["X", "Y", "Class"]
+        values_centro_1 + values_centro_2, columns=list(range(d)) + ["Class"]
     )
 
     return dataframe
 
 
 def plot(df):
-
     color_decide = np.where(df["Class"] == 1, "DarkBlue", "DarkGreen")
 
     axis = df.plot.scatter(
-        "X",
-        "Y",
+        0,
+        1,
         c=color_decide,
-        label=df["Clase"],
     )
 
     axis.set_xlabel("x")
@@ -72,28 +72,39 @@ def plot(df):
     mpl.show()
 
 
-def pretest():
-    d = 2
-    n = 8
-    c = 0.75
-    centros = centros_ej1(d)
-    dataf = generar_valores(centros, c, d, n)
-    plot(dataf)
-
-
-def test_ej_a():
+def test_ej_1a():
     d = 2
     n = 200
     c = 0.75
-    centros = centros_ej1(d)
+    centros = centros_eja(d)
     dataframe = generar_valores(centros, c, d, n)
     plot(dataframe)
 
 
-def test_ej_b():
+def test_ej_1b():
     d = 2
     n = 200
     c = 0.75
-    centros = centros_ej2(d)
+    centros = centros_ejb(d)
     dataframe = generar_valores(centros, c, d, n)
     plot(dataframe)
+
+
+def test_ej_2a():
+    d = 4
+    n = 5000
+    c = 2
+    centros = centros_eja(d)
+    dataframe = generar_valores(centros, c, d, n)
+    print(dataframe.groupby(["Class"]).mean())
+    print(dataframe.groupby(["Class"]).std())
+
+
+def test_ej_2b():
+    d = 4
+    n = 5000
+    c = 2
+    centros = centros_ejb(d)
+    dataframe = generar_valores(centros, c, d, n)
+    print(dataframe.groupby(["Class"]).mean())
+    print(dataframe.groupby(["Class"]).std())
