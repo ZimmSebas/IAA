@@ -55,15 +55,16 @@ def generar_valores(centros, c, d, n):
 
 
 def plot(df):
-    print(df)
 
-    # axis = df_1.plot.scatter(0, 1, color="DarkBlue", label="Clase 0")
+    color_decide = np.where(df["Class"] == 1, "DarkBlue", "DarkGreen")
 
-    # axis.set_xlabel("x")
-    # axis.set_ylabel("y")
+    axis = df.plot.scatter("X", "Y", c=color_decide, label=df["Clase"],)
 
-    # axis.grid(which="both", color="grey", linewidth=1, linestyle="-")
-    # mpl.show()
+    axis.set_xlabel("x")
+    axis.set_ylabel("y")
+
+    axis.grid(which="both", color="grey", linewidth=1, linestyle="-")
+    mpl.show()
 
 
 def pretest():
