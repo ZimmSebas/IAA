@@ -31,7 +31,7 @@ def centros_ej2(d):
 
 def generar_valores(centros, c, d, n):
     (c_1, c_2) = centros
-    std_dev = c ** 2
+    std_dev = c**2
     dev_mat = np.diag([std_dev] * d)
     values_centro_1 = (
         np.random.default_rng()
@@ -58,7 +58,12 @@ def plot(df):
 
     color_decide = np.where(df["Class"] == 1, "DarkBlue", "DarkGreen")
 
-    axis = df.plot.scatter("X", "Y", c=color_decide, label=df["Clase"],)
+    axis = df.plot.scatter(
+        "X",
+        "Y",
+        c=color_decide,
+        label=df["Clase"],
+    )
 
     axis.set_xlabel("x")
     axis.set_ylabel("y")
