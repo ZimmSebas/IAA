@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from math import dist
+from cmath import polar
 from matplotlib import pyplot as mpl
 
 
@@ -47,8 +49,6 @@ def generar_valores(centros, c, d, n):
     values_centro_1 = [v + [0] for v in values_centro_1]
     values_centro_2 = [v + [1] for v in values_centro_2]
 
-    print(values_centro_1)
-
     dataframe = pd.DataFrame(
         values_centro_1 + values_centro_2, columns=list(range(d)) + ["Class"]
     )
@@ -70,6 +70,59 @@ def plot(df):
 
     axis.grid(which="both", color="grey", linewidth=1, linestyle="-")
     mpl.show()
+
+
+def cart2pol(x, y):
+    rho = np.sqrt(x**2 + y**2)
+    phi = np.arctan2(y, x)
+    return (rho, phi)
+
+
+def fst_function(theta):
+    return theta / (4 * np.pi)
+
+
+def snd_function(theta):
+    return (theta + np.pi) / (4 * np.pi)
+
+
+def random_points(n):
+    points = []
+    for i in range(n):
+        [x, y] = (np.random.uniform(-1, 1), np.random.uniform(-1, 1))
+        while dist([0, 0], [x, y]) > 1:
+            (x, y) = (np.random.uniform(-1, 1), np.random.uniform(-1, 1))
+        points.append([x, y])
+    return points
+
+
+def change_to_polars(distribution):
+    polar_distribution = []
+    for p in distribution:
+        (r, theta) = polar(complex(p[0], p[1]))
+        polar_distribution.append([r, theta])
+    print(polar_distribution)
+    return polar_distribution
+
+
+def espiral_dataframe_with_class(points):
+    polar_points = change_to_polars(points)
+    i = 0
+
+    for [rho, theta] in polar_points:
+        class_0 = (
+            fst_function(theta) < rho < snd_function(theta)
+            or fst_function(theta) + 0.5 < rho < snd_function(theta) + 0.5
+            or fst_function(theta) + 1 < rho < snd_function(theta) + 1
+        )
+
+        if class_0:
+            points[i].append(0)
+        else:
+            points[i].append(1)
+        i += 1
+
+    return pd.DataFrame(points, columns=[0, 1, "Class"])
 
 
 def test_ej_1a():
@@ -108,3 +161,10 @@ def test_ej_2b():
     dataframe = generar_valores(centros, c, d, n)
     print(dataframe.groupby(["Class"]).mean())
     print(dataframe.groupby(["Class"]).std())
+
+
+def test_espirales():
+    n = 20000
+    points = random_points(n)
+    dataframe = espiral_dataframe_with_class(points)
+    plot(dataframe)
