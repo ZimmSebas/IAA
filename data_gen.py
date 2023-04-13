@@ -135,7 +135,7 @@ def test_ej_1a():
     n = 200
     c = 0.75
     centros = centros_eja(d)
-    dataframe = generar_valores(centros, c*sqrt(d), d, n)
+    dataframe = generar_valores(centros, c * sqrt(d), d, n)
     plot(dataframe)
 
 
@@ -153,7 +153,7 @@ def test_ej_2a():
     n = 5000
     c = 2
     centros = centros_eja(d)
-    dataframe = generar_valores(centros, c*sqrt(d), d, n)
+    dataframe = generar_valores(centros, c * sqrt(d), d, n)
     print(dataframe.groupby(["Class"]).mean())
     print(dataframe.groupby(["Class"]).std())
 
