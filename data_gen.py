@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from math import dist
+from math import dist, sqrt
 from cmath import polar
 from matplotlib import pyplot as mpl
 
@@ -101,7 +101,6 @@ def change_to_polars(distribution):
     for p in distribution:
         (r, theta) = polar(complex(p[0], p[1]))
         polar_distribution.append([r, theta])
-    print(polar_distribution)
     return polar_distribution
 
 
@@ -125,12 +124,18 @@ def espiral_dataframe_with_class(points):
     return pd.DataFrame(points, columns=[0, 1, "Class"])
 
 
+def generar_espirales(n):
+    points = random_points(n)
+    dataframe = espiral_dataframe_with_class(points)
+    return dataframe
+
+
 def test_ej_1a():
     d = 2
     n = 200
     c = 0.75
     centros = centros_eja(d)
-    dataframe = generar_valores(centros, c, d, n)
+    dataframe = generar_valores(centros, c*sqrt(d), d, n)
     plot(dataframe)
 
 
@@ -148,7 +153,7 @@ def test_ej_2a():
     n = 5000
     c = 2
     centros = centros_eja(d)
-    dataframe = generar_valores(centros, c, d, n)
+    dataframe = generar_valores(centros, c*sqrt(d), d, n)
     print(dataframe.groupby(["Class"]).mean())
     print(dataframe.groupby(["Class"]).std())
 
