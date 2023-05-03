@@ -2,7 +2,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 from data_gen import *
 from matplotlib import pyplot as mpl
-import graphviz
 
 
 def espirales_entrenados(n, test_case):
@@ -127,7 +126,6 @@ def ejercicio_2():
 
     test_error_total = 0.0
     values_error_total = 0.0
-    node_totals = 0.0
 
     test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
     test_case_b = generar_valores(centros_b, c, d, 10000)
@@ -206,7 +204,6 @@ def ejercicio_3():
 
     test_error_total = 0.0
     values_error_total = 0.0
-    node_totals = 0.0
 
     for c in c_values:
         node_totals = 0
@@ -267,6 +264,84 @@ def ejercicio_3():
     plot_tree_sizes(node_sizes, labels, c_values)
 
 
+def clasificador_dist_centro(centros, test_case):
+    clasificacion = []
+
+    for v in test_case:  # Re-trasponer.
+        dist_centro_0 = dist(v, centros[0])
+        dist_centro_1 = dist(v, centros[1])
+        if dist_centro_0 >= dist_centro_1:
+            clasificacion.append(0)
+        else:
+            clasificacion.append(1)
+
+    results_real_values = test_case.iloc[:, -1:].transpose().values.tolist()[0]
+
+    print(results_real_values)
+    print(clasificacion)
+    test_accuracy = accuracy_score(clasificacion, results_real_values)
+
+    return test_accuracy
+
+
+def ejercicio_3_1():
+    c_values = [0.5, 1.0, 1.5, 2.0, 2.5]
+    accuracy_results_parallel_on_test = []
+    accuracy_results_parallel_on_training = []
+    accuracy_results_diagonal_on_test = []
+    accuracy_results_diagonal_on_training = []
+    accuracy_results = []
+    labels = []
+
+    n = 250
+    d = 5
+    centros_a = centros_eja(d)
+    centros_b = centros_ejb(d)
+
+    test_error_total = 0.0
+    values_error_total = 0.0
+
+    for c in c_values:
+        test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
+
+        for j in range(20):
+            values = generar_valores(centros_a, c * sqrt(d), d, n)
+            (test_error) = clasificador_dist_centro(centros_a, test_case_a)
+            test_error_total += test_error
+
+        test_error_total = test_error_total / 20
+
+        accuracy_results_parallel_on_test.append(test_error_total)
+
+    labels.append("Ideal_on_test")
+
+    accuracy_results.append(accuracy_results_parallel_on_test)
+    accuracy_results.append(accuracy_results_parallel_on_training)
+
+    for c in c_values:
+        test_case_b = generar_valores(centros_b, c, d, 10000)
+
+        for j in range(20):
+            values = generar_valores(centros_b, c, d, n)
+            (test_error, values_error) = clasificador_dist_centro(values, test_case_b)
+            test_error_total += test_error
+            values_error_total += values_error
+
+        test_error_total = test_error_total / 20
+        values_error_total = values_error_total / 20
+        node_totals = node_totals / 20
+
+        accuracy_results_diagonal_on_test.append(test_error_total)
+        accuracy_results_diagonal_on_training.append(values_error_total)
+
+    accuracy_results.append(accuracy_results_diagonal_on_test)
+    labels.append("Parallel_on_test")
+    accuracy_results.append(accuracy_results_diagonal_on_training)
+    labels.append("Parallel_on_training")
+
+    plot_error_lines(accuracy_results, labels, c_values)
+
+
 def ejercicio_4():
     d_values = [2, 4, 8, 16, 32]
     accuracy_results_parallel_on_test = []
@@ -290,9 +365,7 @@ def ejercicio_4():
         node_totals = 0
 
         centros_a = centros_eja(d)
-        centros_b = centros_ejb(d)
         test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
-        test_case_b = generar_valores(centros_b, c, d, 10000)
 
         for j in range(20):
             values = generar_valores(centros_a, c * sqrt(d), d, n)
@@ -316,9 +389,7 @@ def ejercicio_4():
     accuracy_results.append(accuracy_results_parallel_on_training)
 
     for d in d_values:
-        centros_a = centros_eja(d)
         centros_b = centros_ejb(d)
-        test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
         test_case_b = generar_valores(centros_b, c, d, 10000)
 
         for j in range(20):
