@@ -266,8 +266,10 @@ def ejercicio_3():
 
 def clasificador_dist_centro(centros, test_case):
     clasificacion = []
+    results_real_values = test_case.iloc[:, -1:].transpose().values.tolist()[0]
+    test_points = test_case.iloc[:, :-1].values
 
-    for v in test_case:  # Re-trasponer.
+    for v in test_points:  # Re-trasponer.
         dist_centro_0 = dist(v, centros[0])
         dist_centro_1 = dist(v, centros[1])
         if dist_centro_0 >= dist_centro_1:
@@ -275,10 +277,6 @@ def clasificador_dist_centro(centros, test_case):
         else:
             clasificacion.append(1)
 
-    results_real_values = test_case.iloc[:, -1:].transpose().values.tolist()[0]
-
-    print(results_real_values)
-    print(clasificacion)
     test_accuracy = accuracy_score(clasificacion, results_real_values)
 
     return test_accuracy
@@ -305,7 +303,6 @@ def ejercicio_3_1():
         test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
 
         for j in range(20):
-            values = generar_valores(centros_a, c * sqrt(d), d, n)
             (test_error) = clasificador_dist_centro(centros_a, test_case_a)
             test_error_total += test_error
 
@@ -313,32 +310,24 @@ def ejercicio_3_1():
 
         accuracy_results_parallel_on_test.append(test_error_total)
 
-    labels.append("Ideal_on_test")
+    labels.append("Ideal_Diagonal_on_test")
 
     accuracy_results.append(accuracy_results_parallel_on_test)
-    accuracy_results.append(accuracy_results_parallel_on_training)
 
     for c in c_values:
         test_case_b = generar_valores(centros_b, c, d, 10000)
 
         for j in range(20):
-            values = generar_valores(centros_b, c, d, n)
-            (test_error, values_error) = clasificador_dist_centro(values, test_case_b)
+            (test_error) = clasificador_dist_centro(centros_b, test_case_b)
             test_error_total += test_error
-            values_error_total += values_error
 
         test_error_total = test_error_total / 20
-        values_error_total = values_error_total / 20
-        node_totals = node_totals / 20
-
+        
         accuracy_results_diagonal_on_test.append(test_error_total)
-        accuracy_results_diagonal_on_training.append(values_error_total)
-
+        
     accuracy_results.append(accuracy_results_diagonal_on_test)
-    labels.append("Parallel_on_test")
-    accuracy_results.append(accuracy_results_diagonal_on_training)
-    labels.append("Parallel_on_training")
-
+    labels.append("Ideal_Parallel_on_test")
+    
     plot_error_lines(accuracy_results, labels, c_values)
 
 
