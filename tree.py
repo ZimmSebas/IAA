@@ -2,6 +2,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 from data_gen import *
 from matplotlib import pyplot as mpl
+from csv import reader
 
 
 def espirales_entrenados(n, test_case):
@@ -405,3 +406,27 @@ def ejercicio_4():
 
     plot_error_lines(accuracy_results, labels, d_values)
     plot_tree_sizes(node_sizes, labels, d_values)
+
+
+def entrenar_xor(case):
+    X_train, y_train = case.iloc[:, :-1], case.iloc[:, -1:]
+    clf = DecisionTreeClassifier(
+        criterion="entropy",
+        min_impurity_decrease=0.03,
+        random_state=0,
+        min_samples_leaf=5,
+    )
+    clf.fit(X_train, y_train)
+    return clf
+
+
+def ejercicio_5():
+    with open("xor.csv") as csvfile:
+        lines = reader(csvfile)
+        dataframe = pd.DataFrame(lines)    
+
+    clf = entrenar_xor(dataframe)
+    case_clasificado = clasificar(dataframe, clf)
+    score_clf = case_clasificado.iloc[:, -1:]
+    score_real = dataframe[2]
+    print(accuracy_score(score_clf, score_real))
