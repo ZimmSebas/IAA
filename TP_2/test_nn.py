@@ -1,6 +1,4 @@
-import numpy as np
-import sklearn as sk
-import pandas as pd
+from sklearn.metrics import accuracy_score
 from sklearn.neural_network import MLPRegressor
 from sklearn.neural_network import MLPClassifier
 

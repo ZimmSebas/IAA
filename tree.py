@@ -323,12 +323,12 @@ def ejercicio_3_1():
             test_error_total += test_error
 
         test_error_total = test_error_total / 20
-        
+
         accuracy_results_diagonal_on_test.append(test_error_total)
-        
+
     accuracy_results.append(accuracy_results_diagonal_on_test)
     labels.append("Ideal_Parallel_on_test")
-    
+
     plot_error_lines(accuracy_results, labels, c_values)
 
 
@@ -423,7 +423,7 @@ def entrenar_xor(case):
 def ejercicio_5():
     with open("xor.csv") as csvfile:
         lines = reader(csvfile)
-        dataframe = pd.DataFrame(lines)    
+        dataframe = pd.DataFrame(lines)
 
     clf = entrenar_xor(dataframe)
     case_clasificado = clasificar(dataframe, clf)
