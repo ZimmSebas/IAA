@@ -56,7 +56,7 @@ def generar_valores(centros, c, d, n):
     return dataframe
 
 
-def plot(df):
+def plot(df, title=None):
     color_decide = np.where(df["Class"] == 1, "DarkBlue", "DarkGreen")
 
     axis = df.plot.scatter(
@@ -67,6 +67,9 @@ def plot(df):
 
     axis.set_xlabel("x")
     axis.set_ylabel("y")
+
+    if title != None:
+        axis.set_title(title)
 
     axis.grid(which="both", color="grey", linewidth=1, linestyle="-")
     mpl.show()

@@ -3,6 +3,8 @@ from sklearn.metrics import accuracy_score
 from data_gen import *
 from matplotlib import pyplot as mpl
 from csv import reader
+from sklearn import tree
+import graphviz
 
 
 def espirales_entrenados(n, test_case):
@@ -34,10 +36,10 @@ def clasificar(test_case, clf):
 
 def ejercicio_1():
     test_case = generar_espirales(10000)
-    plot(test_case)
-    plot(espirales_entrenados(150, test_case))
-    plot(espirales_entrenados(600, test_case))
-    plot(espirales_entrenados(3000, test_case))
+    plot(test_case, "Test original")
+    plot(espirales_entrenados(150, test_case), "Caso con 150")
+    plot(espirales_entrenados(600, test_case), "Caso con 600")
+    plot(espirales_entrenados(3000, test_case), "Caso con 3000")
 
 
 def clasifico_y_errores(values, test_case):
@@ -65,9 +67,9 @@ def clasifico_y_errores(values, test_case):
 
 
 def plot_error_lines(results, labels, sizes):
-    colors = ["red", "red", "blue", "blue"]
-    line = ["-", "-", "-", "-"]
-    markers = ["o", "v", "o", "v"]
+    colors = ["red", "red", "blue", "blue", "green", "green"]
+    line = ["-", "-", "-", "-", "-", "-"]
+    markers = ["o", "v", "o", "v", "o", "v"]
 
     for i in range(len(results)):
         mpl.plot(
@@ -183,7 +185,72 @@ def ejercicio_2():
     node_sizes.append(node_sizes_diagonal)
 
     plot_error_lines(accuracy_results, labels, sizes)
-    plot_tree_sizes(node_sizes, labels, sizes)
+    plot_tree_sizes(node_sizes, ["Diagonal_tree_size", "Parallel_tree_size"], sizes)
+
+
+def clasificador_dist_centro(centros, test_case):
+    clasificacion = []
+    results_real_values = test_case.iloc[:, -1:].transpose().values.tolist()[0]
+    test_points = test_case.iloc[:, :-1].values
+
+    for v in test_points:  # Re-trasponer.
+        dist_centro_0 = dist(v, centros[0])
+        dist_centro_1 = dist(v, centros[1])
+        if dist_centro_0 >= dist_centro_1:
+            clasificacion.append(0)
+        else:
+            clasificacion.append(1)
+
+    test_accuracy = accuracy_score(clasificacion, results_real_values)
+
+    return test_accuracy
+
+
+def ejercicio_3_1():
+    c_values = [0.5, 1.0, 1.5, 2.0, 2.5]
+    accuracy_results_parallel_on_test = []
+    accuracy_results_diagonal_on_test = []
+    accuracy_results = []
+    labels = []
+
+    n = 250
+    d = 5
+    centros_a = centros_eja(d)
+    centros_b = centros_ejb(d)
+
+    test_error_total = 0.0
+
+    for c in c_values:
+        test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
+
+        for j in range(20):
+            (test_error) = clasificador_dist_centro(centros_a, test_case_a)
+            test_error_total += test_error
+
+        test_error_total = test_error_total / 20
+
+        accuracy_results_parallel_on_test.append(test_error_total)
+
+    labels.append("Ideal_Diagonal_on_test")
+
+    accuracy_results.append(accuracy_results_parallel_on_test)
+
+    for c in c_values:
+        test_case_b = generar_valores(centros_b, c, d, 10000)
+
+        for j in range(20):
+            (test_error) = clasificador_dist_centro(centros_b, test_case_b)
+            test_error_total += test_error
+
+        test_error_total = test_error_total / 20
+
+        accuracy_results_diagonal_on_test.append(test_error_total)
+
+    accuracy_results.append(accuracy_results_diagonal_on_test)
+    labels.append("Ideal_Parallel_on_test")
+
+    # plot_error_lines(accuracy_results, labels, c_values)
+    return accuracy_results, labels
 
 
 def ejercicio_3():
@@ -261,75 +328,10 @@ def ejercicio_3():
     node_sizes.append(node_sizes_parallel)
     node_sizes.append(node_sizes_diagonal)
 
-    plot_error_lines(accuracy_results, labels, c_values)
-    plot_tree_sizes(node_sizes, labels, c_values)
+    ideal_results, ideal_labels = ejercicio_3_1()
 
-
-def clasificador_dist_centro(centros, test_case):
-    clasificacion = []
-    results_real_values = test_case.iloc[:, -1:].transpose().values.tolist()[0]
-    test_points = test_case.iloc[:, :-1].values
-
-    for v in test_points:  # Re-trasponer.
-        dist_centro_0 = dist(v, centros[0])
-        dist_centro_1 = dist(v, centros[1])
-        if dist_centro_0 >= dist_centro_1:
-            clasificacion.append(0)
-        else:
-            clasificacion.append(1)
-
-    test_accuracy = accuracy_score(clasificacion, results_real_values)
-
-    return test_accuracy
-
-
-def ejercicio_3_1():
-    c_values = [0.5, 1.0, 1.5, 2.0, 2.5]
-    accuracy_results_parallel_on_test = []
-    accuracy_results_parallel_on_training = []
-    accuracy_results_diagonal_on_test = []
-    accuracy_results_diagonal_on_training = []
-    accuracy_results = []
-    labels = []
-
-    n = 250
-    d = 5
-    centros_a = centros_eja(d)
-    centros_b = centros_ejb(d)
-
-    test_error_total = 0.0
-    values_error_total = 0.0
-
-    for c in c_values:
-        test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
-
-        for j in range(20):
-            (test_error) = clasificador_dist_centro(centros_a, test_case_a)
-            test_error_total += test_error
-
-        test_error_total = test_error_total / 20
-
-        accuracy_results_parallel_on_test.append(test_error_total)
-
-    labels.append("Ideal_Diagonal_on_test")
-
-    accuracy_results.append(accuracy_results_parallel_on_test)
-
-    for c in c_values:
-        test_case_b = generar_valores(centros_b, c, d, 10000)
-
-        for j in range(20):
-            (test_error) = clasificador_dist_centro(centros_b, test_case_b)
-            test_error_total += test_error
-
-        test_error_total = test_error_total / 20
-
-        accuracy_results_diagonal_on_test.append(test_error_total)
-
-    accuracy_results.append(accuracy_results_diagonal_on_test)
-    labels.append("Ideal_Parallel_on_test")
-
-    plot_error_lines(accuracy_results, labels, c_values)
+    plot_error_lines(accuracy_results + ideal_results, labels + ideal_labels, c_values)
+    plot_tree_sizes(node_sizes, ["Diagonal_tree_size", "Parallel_tree_size"], c_values)
 
 
 def ejercicio_4():
@@ -405,7 +407,7 @@ def ejercicio_4():
     node_sizes.append(node_sizes_diagonal)
 
     plot_error_lines(accuracy_results, labels, d_values)
-    plot_tree_sizes(node_sizes, labels, d_values)
+    plot_tree_sizes(node_sizes, ["Diagonal_tree_size", "Parallel_tree_size"], d_values)
 
 
 def entrenar_xor(case):
@@ -429,4 +431,8 @@ def ejercicio_5():
     case_clasificado = clasificar(dataframe, clf)
     score_clf = case_clasificado.iloc[:, -1:]
     score_real = dataframe[2]
+    tree.plot_tree(clf)
+    dot_data = tree.export_graphviz(clf, out_file=None)
+    graph = graphviz.Source(dot_data)
+    graph.render("ejercicio5")
     print(accuracy_score(score_clf, score_real))
