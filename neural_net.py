@@ -99,6 +99,10 @@ def ejercicio_2():
     N2 = 6
     epocas_por_entrenamiento = 50
 
+    errors_train = []
+    errors_val = []
+    errors_test = []
+
     with open("TP_2/dos_elipses.data") as csvfile:
         lines = reader(csvfile)
         data = pd.DataFrame(lines)
@@ -131,20 +135,24 @@ def ejercicio_2():
                     red, evaluaciones, X_train, y_train, X_val, y_val, X_test, y_test
                 )
 
-                np_error_train = np.asarray(error_train)
-                np_error_val = np.asarray(error_val)
-                np_error_test = np.asarray(error_test)
+                errors_train.append(error_train)
+                errors_val.append(error_val)
+                errors_test.append(error_test)
 
-                mean_train_error = np_error_train.mean(axis=0)
-                mean_val_error = np_error_val.mean(axis=0)
-                mean_test_error = np_error_test.mean(axis=0)
+            np_error_train = np.asarray(errors_train)
+            np_error_val = np.asarray(errors_val)
+            np_error_test = np.asarray(errors_test)
+
+            mean_train_error = np_error_train.mean(axis=0)
+            mean_val_error = np_error_val.mean(axis=0)
+            mean_test_error = np_error_test.mean(axis=0)
 
             min_val_error = np.min(mean_val_error)
             pos_min_val_error = np.where(mean_val_error == min_val_error)[0][0]
             print(np_error_test)
             print(mean_test_error)
             print(pos_min_val_error)
-            min_test_error = np_error_test[pos_min_val_error]
+            min_test_error = mean_test_error[pos_min_val_error]
 
             if min_test_error < best_mean_test_error:
                 best_mean_test_error = min_test_error
