@@ -187,3 +187,7 @@ def ejercicio_2():
 
     print(df_table)
     print(df_errors)
+
+def ejercicio_2_print():
+    df_errors_training = pd.read_csv("TP_2/errors_training_ej_2.csv")
+    plot_errors(df_errors_training,title = "Eta = 0.001 - Alfa = 0.9")

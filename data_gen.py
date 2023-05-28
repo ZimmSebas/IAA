@@ -75,6 +75,46 @@ def plot(df, title=None):
     mpl.show()
 
 
+def plot_error_lines(results, labels, sizes):
+    colors = ["red", "red", "blue", "blue", "green", "green"]
+    line = ["-", "-", "-", "-", "-", "-"]
+    markers = ["o", "v", "o", "v", "o", "v"]
+    
+    for i in range(len(results)):
+        mpl.plot(
+            sizes,
+            results[i],
+            color=colors[i],
+            label=labels[i],
+            linestyle=line[i],
+            marker=markers[i],
+        )
+
+    mpl.xlabel("Sizes")
+    mpl.ylabel("Error")
+    mpl.legend()
+
+    mpl.show()
+
+
+def plot_errors(df_errors, title):
+   
+    clases = pd.unique(df_errors["Clase"])
+
+    colors = ["red","blue", "green"]
+        
+    mpl.title(title)
+    for i in range(len(clases)):
+        df_clase = df_errors[df_errors["Clase"] == clases[i]]
+        mpl.plot(df_clase["Épocas"], df_clase["Error"], color=colors[i],label=clases[i])
+    
+    mpl.xlabel("Épocas")
+    mpl.ylabel("Errors")
+    mpl.legend()
+
+    mpl.show()
+ 
+
 def cart2pol(x, y):
     rho = np.sqrt(x**2 + y**2)
     phi = np.arctan2(y, x)
