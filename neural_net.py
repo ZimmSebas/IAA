@@ -10,21 +10,37 @@ from statistics import mean
 from sys import maxsize
 
 
-def crear_red(eta, alfa, epocas_por_entrenamiento, N2):
-    red = MLPClassifier(
-        hidden_layer_sizes=(N2,),
-        activation="logistic",
-        solver="sgd",
-        alpha=0.0,
-        batch_size=1,
-        learning_rate="constant",
-        learning_rate_init=eta,
-        momentum=alfa,
-        nesterovs_momentum=False,
-        tol=0.0,
-        warm_start=True,
-        max_iter=epocas_por_entrenamiento,
-    )
+def crear_red(eta, alfa, epocas_por_entrenamiento, N2, typ="clas", gamma=0.0):
+    if typ == "clas":
+        red = MLPClassifier(
+            hidden_layer_sizes=(N2,),
+            activation="logistic",
+            solver="sgd",
+            alpha=0.0,
+            batch_size=1,
+            learning_rate="constant",
+            learning_rate_init=eta,
+            momentum=alfa,
+            nesterovs_momentum=False,
+            tol=0.0,
+            warm_start=True,
+            max_iter=epocas_por_entrenamiento,
+        )
+    else:
+        red = MLPRegressor(
+            hidden_layer_sizes=(N2,),
+            activation="logistic",
+            solver="sgd",
+            alpha=gamma,
+            batch_size=1,
+            learning_rate="constant",
+            learning_rate_init=eta,
+            momentum=alfa,
+            nesterovs_momentum=False,
+            tol=0.0,
+            warm_start=True,
+            max_iter=epocas_por_entrenamiento,
+        )
     return red
 
 
@@ -149,9 +165,6 @@ def ejercicio_2():
 
             min_val_error = np.min(mean_val_error)
             pos_min_val_error = np.where(mean_val_error == min_val_error)[0][0]
-            print(np_error_test)
-            print(mean_test_error)
-            print(pos_min_val_error)
             min_test_error = mean_test_error[pos_min_val_error]
 
             if min_test_error < best_mean_test_error:
@@ -171,7 +184,6 @@ def ejercicio_2():
     )
 
     errores = []
-    print(best_train_error)
     for i in range(evaluaciones):
         errores.append(
             [best_train_error[i], i * epocas_por_entrenamiento, "Error train"]
@@ -185,9 +197,80 @@ def ejercicio_2():
     df_table = pd.DataFrame(errors_table, columns=["eta", "alfa", "Media error test"])
     df_errors.to_csv("TP_2/errors_training_ej_2.csv", index=False)
 
-    print(df_table)
-    print(df_errors)
 
 def ejercicio_2_print():
     df_errors_training = pd.read_csv("TP_2/errors_training_ej_2.csv")
-    plot_errors(df_errors_training,title = "Eta = 0.001 - Alfa = 0.9")
+    plot_errors(df_errors_training, title="Eta = 0.001 - Alfa = 0.9")
+
+
+def ejercicio_3():
+    alfa = 0.9  # momemtum
+    eta = 0.01  # learning_rate
+    evaluaciones = 400
+    N2 = 30
+    epocas_por_entrenamiento = 50
+
+    errors_train = []
+    errors_val = []
+    errors_test = []
+
+    ratios = [0.95, 0.75, 0.5]
+
+    columns = list(range(5)) + ["Class"]
+
+    data = pd.read_csv(
+        "TP_2/ikeda.data",
+        names=columns,
+        header=None,
+        skipinitialspace=True,
+        delim_whitespace=True,
+    )
+    test = pd.read_csv(
+        "TP_2/ikeda.test",
+        names=columns,
+        header=None,
+        skipinitialspace=True,
+        delim_whitespace=True,
+    )
+
+    X_raw, y_raw = data.iloc[:, :-1], data.iloc[:, -1:]
+    X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
+
+    for ratio in ratios:
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_raw, y_raw, test_size=ratio, random_state=42
+        )
+        red = crear_red(eta, alfa, epocas_por_entrenamiento, N2, typ="regr")
+
+        best_red, error_train, error_val, error_test = entrenar_red(
+            red, evaluaciones, X_train, y_train, X_val, y_val, X_test, y_test, mse=True
+        )
+
+        errores = []
+
+        for i in range(evaluaciones):
+            errores.append(
+                [error_train[i], i * epocas_por_entrenamiento, "Error train"]
+            )
+            errores.append(
+                [error_val[i], i * epocas_por_entrenamiento, "Error validación"]
+            )
+            errores.append([error_test[i], i * epocas_por_entrenamiento, "Error test"])
+
+        df_errors = pd.DataFrame(errores, columns=["Error", "Épocas", "Clase"])
+        df_errors.to_csv("TP_2/errors_ej_3_" + str(ratio) + ".csv", index=False)
+
+    ejercicio_3_print()
+
+
+def ejercicio_3_print():
+    df_errors_training = pd.read_csv("TP_2/errors_ej_3_0.95.csv")
+    plot_errors(df_errors_training, title="Errors with 0.95")
+    df_errors_training = pd.read_csv("TP_2/errors_ej_3_0.75.csv")
+    plot_errors(df_errors_training, title="Errors with 0.75")
+    df_errors_training = pd.read_csv("TP_2/errors_ej_3_0.5.csv")
+    plot_errors(df_errors_training, title="Errors with 0.5")
+
+
+def ejercicio_4():
+    return

@@ -33,7 +33,7 @@ def centros_ejb(d):
 
 def generar_valores(centros, c, d, n):
     (c_1, c_2) = centros
-    std_dev = c**2
+    std_dev = c ** 2
     dev_mat = np.diag([std_dev] * d)
     values_centro_1 = (
         np.random.default_rng()
@@ -59,11 +59,7 @@ def generar_valores(centros, c, d, n):
 def plot(df, title=None):
     color_decide = np.where(df["Class"] == 1, "DarkBlue", "DarkGreen")
 
-    axis = df.plot.scatter(
-        0,
-        1,
-        c=color_decide,
-    )
+    axis = df.plot.scatter(0, 1, c=color_decide,)
 
     axis.set_xlabel("x")
     axis.set_ylabel("y")
@@ -79,7 +75,7 @@ def plot_error_lines(results, labels, sizes):
     colors = ["red", "red", "blue", "blue", "green", "green"]
     line = ["-", "-", "-", "-", "-", "-"]
     markers = ["o", "v", "o", "v", "o", "v"]
-    
+
     for i in range(len(results)):
         mpl.plot(
             sizes,
@@ -98,25 +94,27 @@ def plot_error_lines(results, labels, sizes):
 
 
 def plot_errors(df_errors, title):
-   
+
     clases = pd.unique(df_errors["Clase"])
 
-    colors = ["red","blue", "green"]
-        
+    colors = ["red", "blue", "green"]
+
     mpl.title(title)
     for i in range(len(clases)):
         df_clase = df_errors[df_errors["Clase"] == clases[i]]
-        mpl.plot(df_clase["Épocas"], df_clase["Error"], color=colors[i],label=clases[i])
-    
+        mpl.plot(
+            df_clase["Épocas"], df_clase["Error"], color=colors[i], label=clases[i]
+        )
+
     mpl.xlabel("Épocas")
     mpl.ylabel("Errors")
     mpl.legend()
 
     mpl.show()
- 
+
 
 def cart2pol(x, y):
-    rho = np.sqrt(x**2 + y**2)
+    rho = np.sqrt(x ** 2 + y ** 2)
     phi = np.arctan2(y, x)
     return (rho, phi)
 
