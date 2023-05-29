@@ -65,7 +65,7 @@ def entrenar_red(
             error_val = mean_squared_error(results_val, y_val)
             error_test = mean_squared_error(results_test, y_test)
         else:
-            error_train = 1.0 - accuracy_score(results_train, y_train)
+            error_train = 1.0 - accuracy_score(results_train, y_train) #Change to zero one loss
             error_val = 1.0 - accuracy_score(results_val, y_val)
             error_test = 1.0 - accuracy_score(results_test, y_test)
 
@@ -272,5 +272,93 @@ def ejercicio_3_print():
     plot_errors(df_errors_training, title="Errors with 0.5")
 
 
+def entrenar_red_con_gamma(
+    red, evaluaciones, X_train, y_train, X_test, y_test
+):
+    best_error = 1
+
+    all_error_train = []
+    all_error_val = []
+    all_error_test = []
+
+    for i in range(evaluaciones):
+        red.fit(X_train, np.ravel(y_train))
+
+        results_train = red.predict(X_train)
+        results_test = red.predict(X_test)
+
+        error_train = mean_squared_error(results_train, y_train)
+        error_test = mean_squared_error(results_test, y_test)
+        
+        all_error_train.append(error_train)
+        all_error_test.append(error_test)
+
+        red.coefs_ # Los pesitos
+
+        if best_error > error_test:
+            best_red = deepcopy(red)
+
+    return best_red, all_error_train, all_error_val, all_error_test
+
+
 def ejercicio_4():
-    return
+
+    alfa = 0.3  # momemtum
+    eta = 0.05  # learning_rate
+    evaluaciones = 4000
+    N2 = 6
+    epocas_por_entrenamiento = 20
+
+    errors_train = []
+    errors_val = []
+    errors_test = []
+
+    gammas = [0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1]
+
+    columns = list(range(5)) + ["Class"]
+
+    data = pd.read_csv(
+        "TP_2/ssp.data",
+        names=columns,
+        header=None,
+        skipinitialspace=True,
+        delim_whitespace=True,
+    )
+    test = pd.read_csv(
+        "TP_2/ssp.test",
+        names=columns,
+        header=None,
+        skipinitialspace=True,
+        delim_whitespace=True,
+    )
+
+    X_train, y_train = data.iloc[:, :-1], data.iloc[:, -1:]
+    X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
+
+
+    for gamma in gammas:     
+        red = crear_red(eta, alfa, epocas_por_entrenamiento, N2, typ="regr", gamma=gamma)
+        
+        train_with_gamma
+
+        red.fit(X_train, np.ravel(y_train))
+
+        results_train = red.predict(X_train)
+        results_test = red.predict(X_test)
+
+        error_train = mean_squared_error(y_train, results_train) 
+        error_test = mean_squared_error(y_test, results_test)
+
+        for i in range(evaluaciones):
+            
+            errores.append(
+                [error_train[i], i * epocas_por_entrenamiento, "Error train"]
+            )
+            errores.append(
+                [error_val[i], i * epocas_por_entrenamiento, "Error validación"]
+            )
+            errores.append([error_test[i], i * epocas_por_entrenamiento, "Error test"])
+
+        df_errors = pd.DataFrame(errores, columns=["Error", "Épocas", "Clase"])
+        df_errors.to_csv("TP_2/errors_ej_4_" + str(gamma) + ".csv", index=False)
+
