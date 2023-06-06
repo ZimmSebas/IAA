@@ -1,4 +1,4 @@
-from sklearn.metrics import accuracy_score, mean_squared_error
+from sklearn.metrics import mean_squared_error, zero_one_loss
 from data_gen import *
 from copy import deepcopy
 from matplotlib import pyplot as mpl
@@ -6,7 +6,6 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 from csv import reader
-from statistics import mean
 from sys import maxsize
 
 
@@ -65,9 +64,9 @@ def entrenar_red(
             error_val = mean_squared_error(results_val, y_val)
             error_test = mean_squared_error(results_test, y_test)
         else:
-            error_train = 1.0 - accuracy_score(results_train, y_train) #Change to zero one loss
-            error_val = 1.0 - accuracy_score(results_val, y_val)
-            error_test = 1.0 - accuracy_score(results_test, y_test)
+            error_train = zero_one_loss(results_train, y_train)
+            error_val = zero_one_loss(results_val, y_val)
+            error_test = zero_one_loss(results_test, y_test)
 
         all_error_train.append(error_train)
         all_error_val.append(error_val)
@@ -196,6 +195,7 @@ def ejercicio_2():
     df_errors = pd.DataFrame(errores, columns=["Error", "Épocas", "Clase"])
     df_table = pd.DataFrame(errors_table, columns=["eta", "alfa", "Media error test"])
     df_errors.to_csv("TP_2/errors_training_ej_2.csv", index=False)
+    df_table.to_csv("TP_2/table_ej_2.csv", index=False)
 
 
 def ejercicio_2_print():
@@ -209,10 +209,6 @@ def ejercicio_3():
     evaluaciones = 400
     N2 = 30
     epocas_por_entrenamiento = 50
-
-    errors_train = []
-    errors_val = []
-    errors_test = []
 
     ratios = [0.95, 0.75, 0.5]
 
@@ -278,8 +274,8 @@ def entrenar_red_con_gamma(
     best_error = 1
 
     all_error_train = []
-    all_error_val = []
     all_error_test = []
+    all_wsum = []
 
     for i in range(evaluaciones):
         red.fit(X_train, np.ravel(y_train))
@@ -289,16 +285,17 @@ def entrenar_red_con_gamma(
 
         error_train = mean_squared_error(results_train, y_train)
         error_test = mean_squared_error(results_test, y_test)
+        wsum = sum(map(lambda weight : np.sum(np.power(weight, 2)), red.coefs_))
+
         
         all_error_train.append(error_train)
         all_error_test.append(error_test)
-
-        red.coefs_ # Los pesitos
+        all_wsum.append(wsum)
 
         if best_error > error_test:
             best_red = deepcopy(red)
 
-    return best_red, all_error_train, all_error_val, all_error_test
+    return best_red, all_error_test, all_error_train, all_wsum
 
 
 def ejercicio_4():
@@ -309,10 +306,6 @@ def ejercicio_4():
     N2 = 6
     epocas_por_entrenamiento = 20
 
-    errors_train = []
-    errors_val = []
-    errors_test = []
-
     gammas = [0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1]
 
     columns = list(range(5)) + ["Class"]
@@ -320,45 +313,62 @@ def ejercicio_4():
     data = pd.read_csv(
         "TP_2/ssp.data",
         names=columns,
+        sep=",",
         header=None,
         skipinitialspace=True,
-        delim_whitespace=True,
     )
     test = pd.read_csv(
         "TP_2/ssp.test",
         names=columns,
+        sep=",",
         header=None,
         skipinitialspace=True,
-        delim_whitespace=True,
     )
 
     X_train, y_train = data.iloc[:, :-1], data.iloc[:, -1:]
     X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
 
-
     for gamma in gammas:     
         red = crear_red(eta, alfa, epocas_por_entrenamiento, N2, typ="regr", gamma=gamma)
         
-        train_with_gamma
+        best_red, error_train, error_test, wsum = entrenar_red_con_gamma(red, evaluaciones, X_train, y_train, X_test, y_test)
 
-        red.fit(X_train, np.ravel(y_train))
+        best_red.fit(X_train, np.ravel(y_train))
 
-        results_train = red.predict(X_train)
-        results_test = red.predict(X_test)
+        #best_red.coefs_ son los pesos, creo
 
-        error_train = mean_squared_error(y_train, results_train) 
-        error_test = mean_squared_error(y_test, results_test)
+        errors = []
+        weights = []
 
         for i in range(evaluaciones):
             
-            errores.append(
+            errors.append(
                 [error_train[i], i * epocas_por_entrenamiento, "Error train"]
             )
-            errores.append(
-                [error_val[i], i * epocas_por_entrenamiento, "Error validación"]
+            errors.append(
+                [error_test[i], i * epocas_por_entrenamiento, "Error test"]
             )
-            errores.append([error_test[i], i * epocas_por_entrenamiento, "Error test"])
+            weights.append(
+                [wsum[i],i * epocas_por_entrenamiento]
+            )
 
-        df_errors = pd.DataFrame(errores, columns=["Error", "Épocas", "Clase"])
+        df_errors = pd.DataFrame(errors, columns=["Error", "Épocas", "Clase"])
         df_errors.to_csv("TP_2/errors_ej_4_" + str(gamma) + ".csv", index=False)
+        df_weights = pd.DataFrame(weights, columns=["Weight", "Épocas"])
+        df_weights.to_csv("TP_2/weights_ej_4_" + str(gamma) + ".csv", index=False)
 
+def ejercicio_4_print():
+    df_errors_training = pd.read_csv("TP_2/errors_ej_4_1e-06.csv")
+    plot_errors(df_errors_training, title="Errors with 1e-06")
+    df_errors_training = pd.read_csv("TP_2/errors_ej_4_1e-05.csv")
+    plot_errors(df_errors_training, title="Errors with 1e-05")
+    df_errors_training = pd.read_csv("TP_2/errors_ej_4_0.0001.csv")
+    plot_errors(df_errors_training, title="Errors with 0.0001")
+    df_errors_training = pd.read_csv("TP_2/errors_ej_4_0.001.csv")
+    plot_errors(df_errors_training, title="Errors with 0.001")
+    df_errors_training = pd.read_csv("TP_2/errors_ej_4_0.01.csv")
+    plot_errors(df_errors_training, title="Errors with 0.01")
+    df_errors_training = pd.read_csv("TP_2/errors_ej_4_0.1.csv")
+    plot_errors(df_errors_training, title="Errors with 0.1")
+    df_errors_training = pd.read_csv("TP_2/errors_ej_4_1.csv")
+    plot_errors(df_errors_training, title="Errors with 1")

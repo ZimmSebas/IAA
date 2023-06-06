@@ -86,24 +86,25 @@ def plot_error_lines(results, labels, sizes):
             marker=markers[i],
         )
 
+
     mpl.xlabel("Sizes")
     mpl.ylabel("Error")
     mpl.legend()
 
     mpl.show()
 
-
 def plot_errors(df_errors, title):
 
     clases = pd.unique(df_errors["Clase"])
 
     colors = ["red", "blue", "green"]
+    linestyles = [":", "-.", "-"]
 
     mpl.title(title)
     for i in range(len(clases)):
         df_clase = df_errors[df_errors["Clase"] == clases[i]]
         mpl.plot(
-            df_clase["Épocas"], df_clase["Error"], color=colors[i], label=clases[i]
+            df_clase["Épocas"], df_clase["Error"], color=colors[i], label=clases[i], linestyle=linestyles[i]
         )
 
     mpl.xlabel("Épocas")
