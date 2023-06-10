@@ -347,17 +347,18 @@ def ejercicio_4():
     labels = []
 
     n = 250
-    c = 5
+    c = 0.78
 
     test_error_total = 0.0
     values_error_total = 0.0
     node_totals = 0.0
 
     for d in d_values:
-        node_totals = 0
-
         centros_a = centros_eja(d)
         test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
+        node_totals = 0.0
+        test_error_total = 0.0
+        values_error_total = 0.0
 
         for j in range(20):
             values = generar_valores(centros_a, c * sqrt(d), d, n)
@@ -383,6 +384,9 @@ def ejercicio_4():
     for d in d_values:
         centros_b = centros_ejb(d)
         test_case_b = generar_valores(centros_b, c, d, 10000)
+        node_totals = 0.0
+        test_error_total = 0.0
+        values_error_total = 0.0
 
         for j in range(20):
             values = generar_valores(centros_b, c, d, n)
@@ -403,6 +407,9 @@ def ejercicio_4():
     labels.append("Parallel_on_test")
     accuracy_results.append(accuracy_results_diagonal_on_training)
     labels.append("Parallel_on_training")
+
+    print(accuracy_results)
+
     node_sizes.append(node_sizes_parallel)
     node_sizes.append(node_sizes_diagonal)
 
