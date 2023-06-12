@@ -334,7 +334,7 @@ def ejercicio_3():
     plot_tree_sizes(node_sizes, ["Diagonal_tree_size", "Parallel_tree_size"], c_values)
 
 
-def ejercicio_4():
+def ejercicio_4_tree():
     d_values = [2, 4, 8, 16, 32]
     accuracy_results_parallel_on_test = []
     accuracy_results_parallel_on_training = []
@@ -371,15 +371,15 @@ def ejercicio_4():
         values_error_total = values_error_total / 20
         node_totals_parallel = node_totals / 20
 
-        accuracy_results_parallel_on_test.append(test_error_total)
-        accuracy_results_parallel_on_training.append(values_error_total)
+        accuracy_results.append([test_error_total, d, "Tree_Parallel_Test"])
+        accuracy_results.append([values_error_total, d, "Tree_Parallel_Training"])
         node_sizes_parallel.append(node_totals_parallel)
 
     labels.append("Diagonal_on_test")
     labels.append("Diagonal_on_training")
 
-    accuracy_results.append(accuracy_results_parallel_on_test)
-    accuracy_results.append(accuracy_results_parallel_on_training)
+   # accuracy_results.append(accuracy_results_parallel_on_test)
+   #accuracy_results.append(accuracy_results_parallel_on_training)
 
     for d in d_values:
         centros_b = centros_ejb(d)
@@ -399,22 +399,25 @@ def ejercicio_4():
         values_error_total = values_error_total / 20
         node_totals = node_totals / 20
 
-        accuracy_results_diagonal_on_test.append(test_error_total)
-        accuracy_results_diagonal_on_training.append(values_error_total)
+        accuracy_results.append([test_error_total, d, "Tree_Diagonal_Test"])
+        accuracy_results.append([values_error_total, d, "Tree_Diagonal_Training"])
         node_sizes_diagonal.append(node_totals)
 
-    accuracy_results.append(accuracy_results_diagonal_on_test)
+    #accuracy_results.append(accuracy_results_diagonal_on_test)
     labels.append("Parallel_on_test")
-    accuracy_results.append(accuracy_results_diagonal_on_training)
+    #accuracy_results.append(accuracy_results_diagonal_on_training)
     labels.append("Parallel_on_training")
-
-    print(accuracy_results)
 
     node_sizes.append(node_sizes_parallel)
     node_sizes.append(node_sizes_diagonal)
 
-    plot_error_lines(accuracy_results, labels, d_values)
-    plot_tree_sizes(node_sizes, ["Diagonal_tree_size", "Parallel_tree_size"], d_values)
+    print(accuracy_results)
+
+    df_errors = pd.DataFrame(accuracy_results, columns=["Error", "D", "Type"])
+    df_errors.to_csv("TP_1/errors_ej_4.csv", index=False)
+
+    #plot_error_lines(accuracy_results, labels, d_values)
+    #plot_tree_sizes(node_sizes, ["Diagonal_tree_size", "Parallel_tree_size"], d_values)
 
 
 def entrenar_xor(case):

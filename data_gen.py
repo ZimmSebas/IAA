@@ -113,6 +113,19 @@ def plot_errors(df_errors, title):
 
     mpl.show()
 
+def plot_weights(df_weights, title):
+
+    mpl.title(title)
+    mpl.plot(
+        df_weights["Weight"], df_weights["Épocas"], color="blue", label="Weights", linestyle="-"
+    )
+
+    mpl.xlabel("Weights")
+    mpl.ylabel("Errors")
+    mpl.legend()
+
+    mpl.show()
+
 
 def cart2pol(x, y):
     rho = np.sqrt(x ** 2 + y ** 2)

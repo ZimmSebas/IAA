@@ -1,5 +1,6 @@
 from sklearn.metrics import mean_squared_error, zero_one_loss
 from data_gen import *
+from tree import ejercicio_4_tree
 from copy import deepcopy
 from matplotlib import pyplot as mpl
 from sklearn.neural_network import MLPRegressor
@@ -365,20 +366,15 @@ def ejercicio_4():
         # 1e05 es mejor.
 
 def ejercicio_4_print():
-    df_errors_training = pd.read_csv("TP_2/errors_ej_4_1e-06.csv")
-    plot_errors(df_errors_training, title="Errors with 1e-06")
     df_errors_training = pd.read_csv("TP_2/errors_ej_4_1e-05.csv")
     plot_errors(df_errors_training, title="Errors with 1e-05")
-    df_errors_training = pd.read_csv("TP_2/errors_ej_4_0.0001.csv")
-    plot_errors(df_errors_training, title="Errors with 0.0001")
-    df_errors_training = pd.read_csv("TP_2/errors_ej_4_0.001.csv")
-    plot_errors(df_errors_training, title="Errors with 0.001")
-    df_errors_training = pd.read_csv("TP_2/errors_ej_4_0.01.csv")
-    plot_errors(df_errors_training, title="Errors with 0.01")
     df_errors_training = pd.read_csv("TP_2/errors_ej_4_0.1.csv")
     plot_errors(df_errors_training, title="Errors with 0.1")
-    df_errors_training = pd.read_csv("TP_2/errors_ej_4_1.csv")
-    plot_errors(df_errors_training, title="Errors with 1")
+    df_weights_training = pd.read_csv("TP_2/weights_ej_4_1e-05.csv")
+    plot_weights(df_weights_training, title="Weights with 1e-05")
+    df_weights_training = pd.read_csv("TP_2/weights_ej_4_0.1.csv")
+    plot_weights(df_weights_training, title="Weights with 0.1")
+    
 
 def ejercicio_5():
     alfa = 0.9  # momemtum
@@ -388,7 +384,7 @@ def ejercicio_5():
     epocas_por_entrenamiento = 20
     gamma = 10 ** -5
     c = 0.78
-    n = 10000
+    n = 250
 
     d_values = [2, 4, 8, 16, 32]
 
@@ -400,6 +396,10 @@ def ejercicio_5():
         test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)        
         X_test, y_test = test_case_a.iloc[:, :-1], test_case_a.iloc[:, -1:]
 
+        test_error_para = 0.0
+        values_error_para = 0.0
+        test_error_diag = 0.0
+        values_error_diag = 0.0
 
     
         for j in range(20):
@@ -407,23 +407,74 @@ def ejercicio_5():
             red = crear_red(eta, alfa, epocas_por_entrenamiento, N2, gamma=gamma)
             X_train, y_train = values.iloc[:, :-1], values.iloc[:, -1:]
 
-            best_red, test_error_para, values_error_para, wsums = entrenar_red_con_gamma(red, evaluaciones, X_train, y_train, X_test, y_test, mse=False)
+            best_red, t_errors, v_errors, wsums = entrenar_red_con_gamma(red, evaluaciones, X_train, y_train, X_test, y_test, mse=False)
 
+            results_train = best_red.predict(X_train)
+            results_test = best_red.predict(X_test)
+
+            test_error_para += zero_one_loss(results_test, y_test)
+            values_error_para += zero_one_loss(results_train, y_train) 
+
+        test_error_para = test_error_para / 20
+        values_error_para = values_error_para / 20
+
+        
         centros_b = centros_ejb(d)
-        test_case_b = generar_valores(centros_b, c * sqrt(d), d, 10000)
-        X_test, y_test = test_case_a.iloc[:, :-1], test_case_a.iloc[:, -1:]
+        test_case_b = generar_valores(centros_b, c, d, 10000)
+        X_test, y_test = test_case_b.iloc[:, :-1], test_case_b.iloc[:, -1:]
 
-        for j in range(20): ## Chequear este
+        for j in range(20):
             values = generar_valores(centros_b, c, d, n)
             red = crear_red(eta, alfa, epocas_por_entrenamiento, N2, gamma=gamma)
             X_train, y_train = values.iloc[:, :-1], values.iloc[:, -1:]
 
-            best_red, test_error_diag, values_error_diag, wsums = entrenar_red_con_gamma(red, evaluaciones, X_train, y_train, X_test, y_test, mse=False)
+            best_red, test_error, values_error, wsums = entrenar_red_con_gamma(red, evaluaciones, X_train, y_train, X_test, y_test, mse=False)
+
+            results_train = best_red.predict(X_train)
+            results_test = best_red.predict(X_test)
+
+            test_error_diag += zero_one_loss(results_test, y_test)
+            values_error_diag += zero_one_loss(results_train, y_train) 
+
+        test_error_diag = test_error_para / 20
+        values_error_diag = values_error_para / 20
 
         errors.append([test_error_para, d, "Test_Parallel_NN"])
         errors.append([values_error_para, d, "Val_Parallel_NN"])
-        errors.append([test_error_diag, d, "Test_Parallel_NN"])
-        errors.append([values_error_diag, d, "Val_Parallel_NN"])
+        errors.append([test_error_diag, d, "Test_Diagonal_NN"])
+        errors.append([values_error_diag, d, "Val_Diagonal_NN"])
     
     df_errors = pd.DataFrame(errors, columns=["Error", "D", "Type"])
     df_errors.to_csv("TP_2/errors_ej_5.csv", index=False)
+
+
+def plot_error_lines_with_dimensions(error_dataframe):
+    colors = ["red", "red", "blue", "blue", "green", "green", "orange", "orange"]
+    line = [":", "-", ":", "-", ":", "-", ":", "-"]
+ 
+    types = list(pd.unique(error_dataframe['Type']))
+
+    print(error_dataframe)
+
+    for i in range(len(types)):
+        df = error_dataframe[ error_dataframe['Type'] == types[i]]
+        mpl.plot(
+            df["D"],
+            df["Error"],
+            color=colors[i],
+            label=types[i],
+            linestyle=line[i],
+        )
+
+    mpl.xlabel("Sizes")
+    mpl.ylabel("Error")
+    mpl.legend()
+
+    mpl.show()
+
+def ejercicio_5_print():
+    df_errors_tree = pd.read_csv("TP_1/errors_ej_4.csv")
+    df_errors_nn = pd.read_csv("TP_2/errors_ej_5.csv")
+    df_errors = pd.concat([df_errors_tree,df_errors_nn])
+    print(df_errors)
+    plot_error_lines_with_dimensions(df_errors)
