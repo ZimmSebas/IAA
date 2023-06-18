@@ -70,20 +70,30 @@ def plot(df, title=None):
     axis.grid(which="both", color="grey", linewidth=1, linestyle="-")
     mpl.show()
 
-def plot_error_lines_with_dimensions(error_dataframe):
-    colors = ["red", "red", "blue", "blue", "green", "green", "orange", "orange", "purple", "purple", "indigo", "indigo"]
-    line = [":", "-", ":", "-", ":", "-", ":", "-", ":", "-",":", "-"]
 
-    types = list(pd.unique(error_dataframe['Type']))
+def plot_error_lines_with_dimensions(error_dataframe):
+    colors = [
+        "red",
+        "red",
+        "blue",
+        "blue",
+        "green",
+        "green",
+        "orange",
+        "orange",
+        "purple",
+        "purple",
+        "indigo",
+        "indigo",
+    ]
+    line = [":", "-", ":", "-", ":", "-", ":", "-", ":", "-", ":", "-"]
+
+    types = list(pd.unique(error_dataframe["Type"]))
 
     for i in range(len(types)):
-        df = error_dataframe[ error_dataframe['Type'] == types[i]]
+        df = error_dataframe[error_dataframe["Type"] == types[i]]
         mpl.plot(
-            df["D"],
-            df["Error"],
-            color=colors[i],
-            label=types[i],
-            linestyle=line[i],
+            df["D"], df["Error"], color=colors[i], label=types[i], linestyle=line[i],
         )
 
     mpl.xlabel("Sizes")
@@ -114,6 +124,7 @@ def plot_error_lines(results, labels, sizes):
 
     mpl.show()
 
+
 def plot_errors(df_errors, title):
 
     clases = pd.unique(df_errors["Clase"])
@@ -125,7 +136,11 @@ def plot_errors(df_errors, title):
     for i in range(len(clases)):
         df_clase = df_errors[df_errors["Clase"] == clases[i]]
         mpl.plot(
-            df_clase["Épocas"], df_clase["Error"], color=colors[i], label=clases[i], linestyle=linestyles[i]
+            df_clase["Épocas"],
+            df_clase["Error"],
+            color=colors[i],
+            label=clases[i],
+            linestyle=linestyles[i],
         )
 
     mpl.xlabel("Épocas")
@@ -134,11 +149,16 @@ def plot_errors(df_errors, title):
 
     mpl.show()
 
+
 def plot_weights(df_weights, title):
 
     mpl.title(title)
     mpl.plot(
-        df_weights["Weight"], df_weights["Épocas"], color="blue", label="Weights", linestyle="-"
+        df_weights["Weight"],
+        df_weights["Épocas"],
+        color="blue",
+        label="Weights",
+        linestyle="-",
     )
 
     mpl.xlabel("Weights")

@@ -290,10 +290,9 @@ def entrenar_red_con_gamma(
         else:
             error_train = zero_one_loss(results_train, y_train)
             error_test = zero_one_loss(results_test, y_test)
-        
-        wsum = sum(map(lambda weight : np.sum(np.power(weight, 2)), red.coefs_))
 
-        
+        wsum = sum(map(lambda weight: np.sum(np.power(weight, 2)), red.coefs_))
+
         all_error_train.append(error_train)
         all_error_test.append(error_test)
         all_wsum.append(wsum)
@@ -317,46 +316,36 @@ def ejercicio_4():
     columns = list(range(5)) + ["Class"]
 
     data = pd.read_csv(
-        "TP_2/ssp.data",
-        names=columns,
-        sep=",",
-        header=None,
-        skipinitialspace=True,
+        "TP_2/ssp.data", names=columns, sep=",", header=None, skipinitialspace=True,
     )
     test = pd.read_csv(
-        "TP_2/ssp.test",
-        names=columns,
-        sep=",",
-        header=None,
-        skipinitialspace=True,
+        "TP_2/ssp.test", names=columns, sep=",", header=None, skipinitialspace=True,
     )
 
     X_train, y_train = data.iloc[:, :-1], data.iloc[:, -1:]
     X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
 
-    for gamma in gammas:     
-        red = crear_red(eta, alfa, epocas_por_entrenamiento, N2, typ="regr", gamma=gamma)
-        
-        best_red, error_train, error_test, wsum = entrenar_red_con_gamma(red, evaluaciones, X_train, y_train, X_test, y_test)
+    for gamma in gammas:
+        red = crear_red(
+            eta, alfa, epocas_por_entrenamiento, N2, typ="regr", gamma=gamma
+        )
+
+        best_red, error_train, error_test, wsum = entrenar_red_con_gamma(
+            red, evaluaciones, X_train, y_train, X_test, y_test
+        )
 
         best_red.fit(X_train, np.ravel(y_train))
 
-        #best_red.coefs_ son los pesos, creo
+        # best_red.coefs_ son los pesos, creo
 
         errors = []
         weights = []
 
         for i in range(evaluaciones):
-            
-            errors.append(
-                [error_train[i], i * epocas_por_entrenamiento, "Error train"]
-            )
-            errors.append(
-                [error_test[i], i * epocas_por_entrenamiento, "Error test"]
-            )
-            weights.append(
-                [wsum[i],i * epocas_por_entrenamiento]
-            )
+
+            errors.append([error_train[i], i * epocas_por_entrenamiento, "Error train"])
+            errors.append([error_test[i], i * epocas_por_entrenamiento, "Error test"])
+            weights.append([wsum[i], i * epocas_por_entrenamiento])
 
         df_errors = pd.DataFrame(errors, columns=["Error", "Épocas", "Clase"])
         df_errors.to_csv("TP_2/errors_ej_4_" + str(gamma) + ".csv", index=False)
@@ -364,6 +353,7 @@ def ejercicio_4():
         df_weights.to_csv("TP_2/weights_ej_4_" + str(gamma) + ".csv", index=False)
 
         # 1e05 es mejor.
+
 
 def ejercicio_4_print():
     df_errors_training = pd.read_csv("TP_2/errors_ej_4_1e-05.csv")
@@ -374,7 +364,7 @@ def ejercicio_4_print():
     plot_weights(df_weights_training, title="Weights with 1e-05")
     df_weights_training = pd.read_csv("TP_2/weights_ej_4_0.1.csv")
     plot_weights(df_weights_training, title="Weights with 0.1")
-    
+
 
 def ejercicio_5():
     alfa = 0.9  # momemtum
@@ -393,7 +383,7 @@ def ejercicio_5():
     for d in d_values:
         centros_a = centros_eja(d)
 
-        test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)        
+        test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
         X_test, y_test = test_case_a.iloc[:, :-1], test_case_a.iloc[:, -1:]
 
         test_error_para = 0.0
@@ -401,24 +391,24 @@ def ejercicio_5():
         test_error_diag = 0.0
         values_error_diag = 0.0
 
-    
         for j in range(20):
             values = generar_valores(centros_a, c * sqrt(d), d, n)
             red = crear_red(eta, alfa, epocas_por_entrenamiento, N2, gamma=gamma)
             X_train, y_train = values.iloc[:, :-1], values.iloc[:, -1:]
 
-            best_red, t_errors, v_errors, wsums = entrenar_red_con_gamma(red, evaluaciones, X_train, y_train, X_test, y_test, mse=False)
+            best_red, t_errors, v_errors, wsums = entrenar_red_con_gamma(
+                red, evaluaciones, X_train, y_train, X_test, y_test, mse=False
+            )
 
             results_train = best_red.predict(X_train)
             results_test = best_red.predict(X_test)
 
             test_error_para += zero_one_loss(results_test, y_test)
-            values_error_para += zero_one_loss(results_train, y_train) 
+            values_error_para += zero_one_loss(results_train, y_train)
 
         test_error_para = test_error_para / 20
         values_error_para = values_error_para / 20
 
-        
         centros_b = centros_ejb(d)
         test_case_b = generar_valores(centros_b, c, d, 10000)
         X_test, y_test = test_case_b.iloc[:, :-1], test_case_b.iloc[:, -1:]
@@ -428,13 +418,15 @@ def ejercicio_5():
             red = crear_red(eta, alfa, epocas_por_entrenamiento, N2, gamma=gamma)
             X_train, y_train = values.iloc[:, :-1], values.iloc[:, -1:]
 
-            best_red, test_error, values_error, wsums = entrenar_red_con_gamma(red, evaluaciones, X_train, y_train, X_test, y_test, mse=False)
+            best_red, test_error, values_error, wsums = entrenar_red_con_gamma(
+                red, evaluaciones, X_train, y_train, X_test, y_test, mse=False
+            )
 
             results_train = best_red.predict(X_train)
             results_test = best_red.predict(X_test)
 
             test_error_diag += zero_one_loss(results_test, y_test)
-            values_error_diag += zero_one_loss(results_train, y_train) 
+            values_error_diag += zero_one_loss(results_train, y_train)
 
         test_error_diag = test_error_diag / 20
         values_error_diag = values_error_diag / 20
@@ -443,7 +435,7 @@ def ejercicio_5():
         errors.append([values_error_para, d, "Val_Parallel_NN"])
         errors.append([test_error_diag, d, "Test_Diagonal_NN"])
         errors.append([values_error_diag, d, "Val_Diagonal_NN"])
-    
+
     df_errors = pd.DataFrame(errors, columns=["Error", "D", "Type"])
     df_errors.to_csv("TP_2/errors_ej_5.csv", index=False)
 
@@ -451,19 +443,15 @@ def ejercicio_5():
 def plot_error_lines_with_dimensions(error_dataframe):
     colors = ["red", "red", "blue", "blue", "green", "green", "orange", "orange"]
     line = [":", "-", ":", "-", ":", "-", ":", "-"]
- 
-    types = list(pd.unique(error_dataframe['Type']))
+
+    types = list(pd.unique(error_dataframe["Type"]))
 
     print(error_dataframe)
 
     for i in range(len(types)):
-        df = error_dataframe[ error_dataframe['Type'] == types[i]]
+        df = error_dataframe[error_dataframe["Type"] == types[i]]
         mpl.plot(
-            df["D"],
-            df["Error"],
-            color=colors[i],
-            label=types[i],
-            linestyle=line[i],
+            df["D"], df["Error"], color=colors[i], label=types[i], linestyle=line[i],
         )
 
     mpl.xlabel("Sizes")
@@ -472,10 +460,11 @@ def plot_error_lines_with_dimensions(error_dataframe):
 
     mpl.show()
 
+
 def ejercicio_5_print():
     df_errors_tree = pd.read_csv("TP_1/errors_ej_4.csv")
     df_errors_nn = pd.read_csv("TP_2/errors_ej_5.csv")
-    df_errors = pd.concat([df_errors_tree,df_errors_nn])
+    df_errors = pd.concat([df_errors_tree, df_errors_nn])
     print(df_errors)
     plot_error_lines_with_dimensions(df_errors)
 
@@ -490,8 +479,12 @@ def ejercicio_6_1():
     iris = load_iris()
     X = iris.data
     y = iris.target
-    X_data, X_test, y_data, y_test = train_test_split(X, y, random_state=42, test_size = 1/3)
-    X_train, X_val, y_train, y_val = train_test_split(X_data, y_data, random_state=42, test_size = 0.2)
+    X_data, X_test, y_data, y_test = train_test_split(
+        X, y, random_state=42, test_size=1 / 3
+    )
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_data, y_data, random_state=42, test_size=0.2
+    )
 
     red = crear_red(eta, alfa, epocas_por_entrenamiento, N2)
 
@@ -506,9 +499,10 @@ def ejercicio_6_1():
         errors.append([error_val[i], i * epocas_por_entrenamiento, " Validation error"])
         errors.append([error_test[i], i * epocas_por_entrenamiento, "Test error"])
 
-    df_errors = pd.DataFrame(errors, columns = ["Error", "Épocas", "Clase"])
-    df_errors.to_csv("TP_2/errors_ej_6_1.csv", index=False)    
+    df_errors = pd.DataFrame(errors, columns=["Error", "Épocas", "Clase"])
+    df_errors.to_csv("TP_2/errors_ej_6_1.csv", index=False)
     plot_errors(df_errors, title="Errores en Iris Multiclase")
+
 
 def ejercicio_6_2():
     alfa = 0.9  # momemtum
@@ -517,15 +511,15 @@ def ejercicio_6_2():
     N2 = 6
     epocas_por_entrenamiento = 100
 
-    #col_names = list(range(960)) + ['Class']
-    #x_col_names = col_names[:-1]
-    #y_col_name = col_names[-1]
+    # col_names = list(range(960)) + ['Class']
+    # x_col_names = col_names[:-1]
+    # y_col_name = col_names[-1]
 
     data = pd.read_csv("TP_2/faces.data", header=None)
     test = pd.read_csv("TP_2/faces.test", header=None)
 
-    #print(data.max())
-    #print(data.max().max())
+    # print(data.max())
+    # print(data.max().max())
 
     maximum = max(data.max().max(), test.max().max())
 
@@ -535,7 +529,9 @@ def ejercicio_6_2():
     X_data = X_data / maximum
     X_test = X_test / maximum
 
-    X_train, X_val, y_train, y_val = train_test_split(X_data, y_data, random_state=42, test_size=0.2)
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_data, y_data, random_state=42, test_size=0.2
+    )
 
     red = crear_red(eta, alfa, epocas_por_entrenamiento, N2)
 
@@ -550,7 +546,7 @@ def ejercicio_6_2():
         errors.append([error_val[i], i * epocas_por_entrenamiento, " Validation error"])
         errors.append([error_test[i], i * epocas_por_entrenamiento, "Test error"])
 
-    df_errors = pd.DataFrame(errors, columns = ["Error", "Épocas", "Clase"])
+    df_errors = pd.DataFrame(errors, columns=["Error", "Épocas", "Clase"])
     print(df_errors)
-    df_errors.to_csv("TP_2/errors_ej_6_2.csv", index=False)    
+    df_errors.to_csv("TP_2/errors_ej_6_2.csv", index=False)
     plot_errors(df_errors, title="Errores en Faces")
