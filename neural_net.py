@@ -6,6 +6,7 @@ from matplotlib import pyplot as mpl
 from sklearn.neural_network import MLPRegressor
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
 from csv import reader
 from sys import maxsize
 
@@ -478,3 +479,79 @@ def ejercicio_5_print():
     df_errors = pd.concat([df_errors_tree,df_errors_nn])
     print(df_errors)
     plot_error_lines_with_dimensions(df_errors)
+
+
+def ejercicio_6_1():
+    alfa = 0.9  # momemtum
+    eta = 0.1  # learning_rate
+    evaluaciones = 3000
+    N2 = 6
+    epocas_por_entrenamiento = 200
+
+    iris = load_iris()
+    X = iris.data
+    y = iris.target
+    X_data, X_test, y_data, y_test = train_test_split(X, y, random_state=42, test_size = 1/3)
+    X_train, X_val, y_train, y_val = train_test_split(X_data, y_data, random_state=42, test_size = 0.2)
+
+    red = crear_red(eta, alfa, epocas_por_entrenamiento, N2)
+
+    best_red, error_train, error_val, error_test = entrenar_red(
+        red, evaluaciones, X_train, y_train, X_val, y_val, X_test, y_test
+    )
+
+    errors = []
+
+    for i in range(evaluaciones):
+        errors.append([error_train[i], i * epocas_por_entrenamiento, "Train error"])
+        errors.append([error_val[i], i * epocas_por_entrenamiento, " Validation error"])
+        errors.append([error_test[i], i * epocas_por_entrenamiento, "Test error"])
+
+    df_errors = pd.DataFrame(errors, columns = ["Error", "Épocas", "Clase"])
+    df_errors.to_csv("TP_2/errors_ej_6_1.csv", index=False)    
+    plot_errors(df_errors, title="Errores en Iris Multiclase")
+
+def ejercicio_6_2():
+    alfa = 0.9  # momemtum
+    eta = 0.1  # learning_rate
+    evaluaciones = 3000
+    N2 = 6
+    epocas_por_entrenamiento = 100
+
+    #col_names = list(range(960)) + ['Class']
+    #x_col_names = col_names[:-1]
+    #y_col_name = col_names[-1]
+
+    data = pd.read_csv("TP_2/faces.data", header=None)
+    test = pd.read_csv("TP_2/faces.test", header=None)
+
+    #print(data.max())
+    #print(data.max().max())
+
+    maximum = max(data.max().max(), test.max().max())
+
+    X_data, y_data = data.iloc[:, :-1], data.iloc[:, -1:]
+    X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
+
+    X_data = X_data / maximum
+    X_test = X_test / maximum
+
+    X_train, X_val, y_train, y_val = train_test_split(X_data, y_data, random_state=42, test_size=0.2)
+
+    red = crear_red(eta, alfa, epocas_por_entrenamiento, N2)
+
+    best_red, error_train, error_val, error_test = entrenar_red(
+        red, evaluaciones, X_train, y_train, X_val, y_val, X_test, y_test
+    )
+
+    errors = []
+
+    for i in range(evaluaciones):
+        errors.append([error_train[i], i * epocas_por_entrenamiento, "Train error"])
+        errors.append([error_val[i], i * epocas_por_entrenamiento, " Validation error"])
+        errors.append([error_test[i], i * epocas_por_entrenamiento, "Test error"])
+
+    df_errors = pd.DataFrame(errors, columns = ["Error", "Épocas", "Clase"])
+    print(df_errors)
+    df_errors.to_csv("TP_2/errors_ej_6_2.csv", index=False)    
+    plot_errors(df_errors, title="Errores en Faces")
