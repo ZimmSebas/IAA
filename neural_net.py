@@ -1,6 +1,5 @@
 from sklearn.metrics import mean_squared_error, zero_one_loss
 from data_gen import *
-from tree import ejercicio_4_tree
 from copy import deepcopy
 from matplotlib import pyplot as mpl
 from sklearn.neural_network import MLPRegressor
@@ -437,8 +436,8 @@ def ejercicio_5():
             test_error_diag += zero_one_loss(results_test, y_test)
             values_error_diag += zero_one_loss(results_train, y_train) 
 
-        test_error_diag = test_error_para / 20
-        values_error_diag = values_error_para / 20
+        test_error_diag = test_error_diag / 20
+        values_error_diag = values_error_diag / 20
 
         errors.append([test_error_para, d, "Test_Parallel_NN"])
         errors.append([values_error_para, d, "Val_Parallel_NN"])

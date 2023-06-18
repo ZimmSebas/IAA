@@ -70,6 +70,28 @@ def plot(df, title=None):
     axis.grid(which="both", color="grey", linewidth=1, linestyle="-")
     mpl.show()
 
+def plot_error_lines_with_dimensions(error_dataframe):
+    colors = ["red", "red", "blue", "blue", "green", "green", "orange", "orange", "purple", "purple","indigo", "indigo"]
+    line = [":", "-", ":", "-", ":", "-", ":", "-", ":", "-",":", "-"]
+
+    types = list(pd.unique(error_dataframe['Type']))
+
+    for i in range(len(types)):
+        df = error_dataframe[ error_dataframe['Type'] == types[i]]
+        mpl.plot(
+            df["D"],
+            df["Error"],
+            color=colors[i],
+            label=types[i],
+            linestyle=line[i],
+        )
+
+    mpl.xlabel("Sizes")
+    mpl.ylabel("Error")
+    mpl.legend()
+
+    mpl.show()
+
 
 def plot_error_lines(results, labels, sizes):
     colors = ["red", "red", "blue", "blue", "green", "green"]
