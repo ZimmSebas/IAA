@@ -19,8 +19,6 @@ def bayes_train(X_train, y_train, X_test, y_test):
   error_train = zero_one_loss(results_train, y_train)
   error_test = zero_one_loss(results_test, y_test)
 
-  #print(error_train)
-
   return error_train, error_test
 
 
@@ -47,7 +45,7 @@ def ejercicio_1():
       values = generar_valores(centros_a, c * sqrt(d), d, n)
       X_train, y_train = values.iloc[:, :-1], values.iloc[:, -1:]
 
-      t_errors, v_errors = bayes_train(X_train, y_train, X_test, y_test)
+      v_errors, t_errors = bayes_train(X_train, y_train, X_test, y_test)
 
       test_error_para += t_errors
       values_error_para += v_errors
@@ -64,7 +62,7 @@ def ejercicio_1():
       values = generar_valores(centros_b, c, d, n)
       X_train, y_train = values.iloc[:, :-1], values.iloc[:, -1:]
 
-      t_errors, v_errors = bayes_train(X_train, y_train, X_test, y_test)
+      v_errors, t_errors = bayes_train(X_train, y_train, X_test, y_test)
 
       test_error_diag += t_errors
       values_error_diag += v_errors
@@ -87,3 +85,34 @@ def ejercicio_1_print():
   df_errors = pd.concat([df_errors_tree,df_errors_nn,df_errors_bayes])
   print(df_errors)
   plot_error_lines_with_dimensions(df_errors)
+
+def ejercicio_2():
+
+  columns = list(range(2)) + ["Class"]
+
+  data = pd.read_csv(
+      "TP_2/dos_elipses.data",
+      names=columns,
+      header=None,
+  )
+
+  test = pd.read_csv(
+      "TP_2/dos_elipses.test",
+      names=columns,
+      header=None,
+  )
+
+  X_train, y_train = data.iloc[:, :-1], data.iloc[:, -1:]
+  X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
+
+  clf = GaussianNB()
+  clf.fit(X_train, np.ravel(y_train))
+
+  results_train = clf.predict(X_train)
+  results_test = clf.predict(X_test)
+
+  df_results = X_test
+  df_results["Class"] = results_test
+
+  plot(test, "Test results")
+  plot(df_results, "Bayes results")

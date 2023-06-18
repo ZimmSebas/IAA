@@ -71,7 +71,7 @@ def plot(df, title=None):
     mpl.show()
 
 def plot_error_lines_with_dimensions(error_dataframe):
-    colors = ["red", "red", "blue", "blue", "green", "green", "orange", "orange", "purple", "purple","indigo", "indigo"]
+    colors = ["red", "red", "blue", "blue", "green", "green", "orange", "orange", "purple", "purple", "indigo", "indigo"]
     line = [":", "-", ":", "-", ":", "-", ":", "-", ":", "-",":", "-"]
 
     types = list(pd.unique(error_dataframe['Type']))
@@ -107,7 +107,6 @@ def plot_error_lines(results, labels, sizes):
             linestyle=line[i],
             marker=markers[i],
         )
-
 
     mpl.xlabel("Sizes")
     mpl.ylabel("Error")
@@ -213,6 +212,7 @@ def test_ej_1a():
     c = 0.75
     centros = centros_eja(d)
     dataframe = generar_valores(centros, c * sqrt(d), d, n)
+    print(dataframe)
     plot(dataframe)
 
 
