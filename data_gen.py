@@ -33,7 +33,7 @@ def centros_ejb(d):
 
 def generar_valores(centros, c, d, n):
     (c_1, c_2) = centros
-    std_dev = c ** 2
+    std_dev = c**2
     dev_mat = np.diag([std_dev] * d)
     values_centro_1 = (
         np.random.default_rng()
@@ -59,7 +59,11 @@ def generar_valores(centros, c, d, n):
 def plot(df, title=None):
     color_decide = np.where(df["Class"] == 1, "DarkBlue", "DarkGreen")
 
-    axis = df.plot.scatter(0, 1, c=color_decide,)
+    axis = df.plot.scatter(
+        0,
+        1,
+        c=color_decide,
+    )
 
     axis.set_xlabel("x")
     axis.set_ylabel("y")
@@ -93,7 +97,11 @@ def plot_error_lines_with_dimensions(error_dataframe):
     for i in range(len(types)):
         df = error_dataframe[error_dataframe["Type"] == types[i]]
         mpl.plot(
-            df["D"], df["Error"], color=colors[i], label=types[i], linestyle=line[i],
+            df["D"],
+            df["Error"],
+            color=colors[i],
+            label=types[i],
+            linestyle=line[i],
         )
 
     mpl.xlabel("Sizes")
@@ -126,7 +134,6 @@ def plot_error_lines(results, labels, sizes):
 
 
 def plot_errors(df_errors, title):
-
     clases = pd.unique(df_errors["Clase"])
 
     colors = ["red", "blue", "green"]
@@ -151,7 +158,6 @@ def plot_errors(df_errors, title):
 
 
 def plot_weights(df_weights, title):
-
     mpl.title(title)
     mpl.plot(
         df_weights["Weight"],
@@ -169,7 +175,7 @@ def plot_weights(df_weights, title):
 
 
 def cart2pol(x, y):
-    rho = np.sqrt(x ** 2 + y ** 2)
+    rho = np.sqrt(x**2 + y**2)
     phi = np.arctan2(y, x)
     return (rho, phi)
 

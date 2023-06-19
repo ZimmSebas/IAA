@@ -88,12 +88,19 @@ def ejercicio_1_print():
 
 
 def ejercicio_2():
-
     columns = list(range(2)) + ["Class"]
 
-    data = pd.read_csv("TP_2/dos_elipses.data", names=columns, header=None,)
+    data = pd.read_csv(
+        "TP_2/dos_elipses.data",
+        names=columns,
+        header=None,
+    )
 
-    test = pd.read_csv("TP_2/dos_elipses.test", names=columns, header=None,)
+    test = pd.read_csv(
+        "TP_2/dos_elipses.test",
+        names=columns,
+        header=None,
+    )
 
     X_train, y_train = data.iloc[:, :-1], data.iloc[:, -1:]
     X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
