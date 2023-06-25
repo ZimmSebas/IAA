@@ -1,11 +1,13 @@
-from sklearn.metrics import zero_one_loss, accuracy_score
-from sklearn.naive_bayes import GaussianNB, CategoricalNB
+from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay
+from sklearn.naive_bayes import GaussianNB, CategoricalNB, MultinomialNB
 from sklearn.preprocessing import KBinsDiscretizer
 from data_gen import *
-from neural_net import crear_red, entrenar_red
 from copy import deepcopy
 from matplotlib import pyplot as mpl
 from sklearn.model_selection import train_test_split
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
 
 def bayes_train(X_train, y_train, X_test, y_test):
     clf = GaussianNB()
@@ -270,3 +272,48 @@ def ejercicio_4_espirales():
     plot(df_results_bins_bayes, "Bayes bins results")
 
     plot_error_bins(df_errors, title="Errors with bins")
+
+def ejercicio_5():
+
+    X, y = fetch_20newsgroups(subset="train",return_X_y=True, remove=["headers"])
+    X_train, X_val, y_train, y_val = train_test_split(X, y,test_size=0.25, random_state=1)
+    X_test, y_test = fetch_20newsgroups(subset="test",return_X_y=True,remove=["headers"])
+
+    table = []
+    best_error_val = 1
+
+    for size_dic in [1000, 1500, 2000, 2500, 3000, 3500, 4000]:
+        for alfa in [0.0001, 0.001, 0.01, 0.1, 1]:    
+
+            vec = CountVectorizer(stop_words='english',max_features=size_dic)
+            Xvec_train = vec.fit_transform(X_train).toarray()
+            Xvec_val = vec.transform(X_val).toarray()
+            Xvec_test = vec.transform(X_test).toarray()
+
+            clf = MultinomialNB(alpha=alfa)
+            clf.fit(Xvec_train, y_train)
+
+            results_test = clf.predict(Xvec_test)
+            results_val = clf.predict(Xvec_val)
+            results_train = clf.predict(Xvec_train)
+
+            error_test = 1 - accuracy_score(y_test, results_test)
+            error_train = 1 - accuracy_score(y_train, results_train)
+            error_val = 1 - accuracy_score(y_val, results_val)
+
+            table.append([alfa, size_dic, error_train, error_val, error_test])
+
+            if error_val < best_error_val:
+                best_error_val = error_val
+                best_alfa = alfa
+                best_size = size_dic
+                best_error_test = deepcopy(error_test)
+    
+    print("Best combination alfa: " + str(best_alfa) + " size: " + str(best_size) + " has error: " + str(best_error_val))
+
+    df_table = pd.DataFrame(table, columns = ["Alfa", "Size diccionario", "Error Train", "Error Val", "Error Test"])
+    print(df_table)
+
+    _, ax = mpl.subplots(figsize=(10, 10))
+    ConfusionMatrixDisplay.from_predictions(y_test, best_error_test, display_labels=clf.classes_, ax=ax)
+    mpl.show()
