@@ -156,6 +156,30 @@ def plot_errors(df_errors, title):
 
     mpl.show()
 
+def plot_error_bins(df_errors, title):
+    clases = pd.unique(df_errors["Clase"])
+
+    colors = ["red", "blue", "green"]
+    linestyles = [":", "-.", "-"]
+
+    mpl.title(title)
+    for i in range(len(clases)):
+        df_clase = df_errors[df_errors["Clase"] == clases[i]]
+        mpl.plot(
+            df_clase["Bins"],
+            df_clase["Error"],
+            color=colors[i],
+            label=clases[i],
+            linestyle=linestyles[i],
+        )
+
+    mpl.xlabel("Bins")
+    mpl.ylabel("Errors")
+    mpl.legend()
+
+    mpl.show()
+
+
 
 def plot_weights(df_weights, title):
     mpl.title(title)

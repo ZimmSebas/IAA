@@ -1,4 +1,4 @@
-from sklearn.metrics import zero_one_loss
+from sklearn.metrics import zero_one_loss, accuracy_score
 from sklearn.naive_bayes import GaussianNB, CategoricalNB
 from sklearn.preprocessing import KBinsDiscretizer
 from data_gen import *
@@ -15,8 +15,8 @@ def bayes_train(X_train, y_train, X_test, y_test):
     results_train = clf.predict(X_train)
     results_test = clf.predict(X_test)
 
-    error_train = zero_one_loss(results_train, y_train)
-    error_test = zero_one_loss(results_test, y_test)
+    error_train = 1-accuracy_score(results_train, y_train)
+    error_test = 1-accuracy_score(results_test, y_test)
 
     return error_train, error_test
 
@@ -141,37 +141,132 @@ def ejercicio_2_espirales():
     plot(df_results_nn, "NN results")
     plot(df_results_bayes, "Bayes results")
 
-def ejercicio_3():
-    n_bins = [2,3,4,5,6,7,8]
-    for bins in n_bins:
+def entrenar_CategoricalNB(list_bins, X_train, y_train, X_val, y_val, X_test, y_test ):  
+    errors = []
+    best_val_error = 1
+
+    for bins in list_bins:
         kbdisc = KBinsDiscretizer(n_bins=bins, encode='ordinal', strategy='uniform')
         kbdisc.fit(X_train)
 
-    X_train_disc = kbdisc.transform(X_train.copy())
-    X_val_disc = kbdisc.transform(X_val.copy())
-    X_test_disc = kbdisc.transform(X_test.copy())
+        X_train_discrete = kbdisc.transform(X_train.copy())
+        X_val_discrete = kbdisc.transform(X_val.copy())
+        X_test_discrete = kbdisc.transform(X_test.copy())
 
-    clf = CategoricalNB(min_categories=bins)
-    clf.fit(X_train_disc, y_train)
+        bnet = CategoricalNB(min_categories=bins)
+        bnet.fit(X_train_discrete, np.ravel(y_train))
 
-    predict_train = clf.predict(X_train_disc)
-    predict_val = clf.predict(X_val_disc)
-    predict_test= clf.predict(X_test_disc)
+        results_train = bnet.predict(X_train_discrete)
+        results_val = bnet.predict(X_val_discrete)
+        results_test= bnet.predict(X_test_discrete)
 
-    actual_train_error = 1 - accuracy_score(y_train, predict_train)
-    actual_val_error = 1 - accuracy_score(y_val, predict_val)
-    actual_test_error = 1 - accuracy_score(y_test, predict_test)
+        train_error = 1 - accuracy_score(y_train, results_train)
+        val_error = 1 - accuracy_score(y_val, results_val)
+        test_error = 1 - accuracy_score(y_test, results_test)
 
-    errors.append([actual_train_error, bins, "Train error"])
-    errors.append([actual_val_error, bins, "Validation error"])
-    errors.append([actual_test_error, bins, "Test error"])
+        errors.append([train_error, bins, "Train error"])
+        errors.append([val_error, bins, "Validation error"])
+        errors.append([test_error, bins, "Test error"])
 
-    if actual_val_error < best_val_error:
-      best_val_error = actual_val_error
-      best_bins = bins
-      best_clf = deepcopy(clf)
-      best_kbdisc = deepcopy(kbdisc)
+        if val_error < best_val_error:
+            best_val_error = val_error
+            best_bins = bins
+            best_bnet = deepcopy(bnet)
+            best_kbdisc = deepcopy(kbdisc)
 
-    errors_df = pd.DataFrame(errors, columns = ["Error", "Bins", "Class"])
+    df_errors = pd.DataFrame(errors, columns = ["Error", "Bins", "Clase"])
 
-    return best_bins, best_clf, best_kbdisc, errors_df 
+    return best_bins, df_errors, best_bnet, best_kbdisc
+
+def ejercicio_4_elipses():
+    columns = ["0","1","Class"]
+
+    data = pd.read_csv(
+        "TP_2/dos_elipses.data",
+        names=columns,
+        header=None,
+    )
+
+    test = pd.read_csv(
+        "TP_2/dos_elipses.test",
+        names=columns,
+        header=None,
+    )
+    
+    X_raw, y_raw = data.iloc[:, :-1], data.iloc[:, -1:]
+    X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
+
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_raw, y_raw, test_size=0.2, random_state=42
+    )
+
+    # Classic Bayes
+    
+    clf = GaussianNB()
+    clf.fit(X_train, np.ravel(y_train))
+
+    results_test = clf.predict(X_test)
+
+    df_results_bayes = X_test.copy()
+    df_results_bayes["Class"] = results_test
+
+    ## Bins discrete Bayes
+
+    list_bins = range(2,100,2)
+
+    best_bins, df_errors, best_bnet, best_kbdisc = entrenar_CategoricalNB(list_bins, X_train, y_train, X_val, y_val, X_test, y_test )
+
+    X_test_discrete = best_kbdisc.transform(X_test.copy())
+    results_bins_test = best_bnet.predict(X_test_discrete)
+
+    df_results_bins_bayes = X_test
+    df_results_bins_bayes["Class"] = results_bins_test
+
+    print("Best result was "+ str(best_bins))
+    plot(test, "Original results")
+    plot(df_results_bayes, "Bayes results")
+    plot(df_results_bins_bayes, "Bayes bins results")
+
+    plot_error_bins(df_errors, title="Errors with bins")
+
+
+def ejercicio_4_espirales():
+
+    test = generar_espirales(2000)
+    data = generar_espirales(600)
+
+    X_raw, y_raw = data.iloc[:, :-1], data.iloc[:, -1:]
+    X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
+
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_raw, y_raw, test_size=0.2, random_state=42
+    )
+
+    # Classic Bayes
+    
+    clf = GaussianNB()
+    clf.fit(X_train, np.ravel(y_train))
+
+    results_test = clf.predict(X_test)
+
+    df_results_bayes = X_test.copy()
+    df_results_bayes["Class"] = results_test
+
+    ## Bins discrete Bayes
+
+    list_bins = range(2,100,2)
+
+    best_bins, df_errors, best_bnet, best_kbdisc = entrenar_CategoricalNB(list_bins, X_train, y_train, X_val, y_val, X_test, y_test )
+
+    X_test_discrete = best_kbdisc.transform(X_test.copy())
+    results_bins_test = best_bnet.predict(X_test_discrete)
+
+    df_results_bins_bayes = X_test
+    df_results_bins_bayes["Class"] = results_bins_test
+
+    print("Best result was "+ str(best_bins))
+    plot(test, "Original results")
+    plot(df_results_bayes, "Bayes results")
+    plot(df_results_bins_bayes, "Bayes bins results")
+
+    plot_error_bins(df_errors, title="Errors with bins")
