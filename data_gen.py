@@ -110,6 +110,28 @@ def plot_error_lines_with_dimensions(error_dataframe):
 
     mpl.show()
 
+def plot_knn_errors(df_results, title=None):
+    colors = ["red", "blue", "green"]
+    linestyles = [":", "-.", "-"]
+    errors = ["Error Train", "Error Val", "Error Test"]
+
+    mpl.title(title)
+    for i in range(len(errors)):        
+        mpl.plot(
+            df_results["N"],
+            df_results[errors[i]],
+            color=colors[i],
+            label=errors[i],
+            linestyle=linestyles[i],
+        )
+
+    mpl.xlabel("N")
+    mpl.ylabel("Errors")
+    mpl.legend()
+
+    mpl.show()
+
+
 
 def plot_error_lines(results, labels, sizes):
     colors = ["red", "red", "blue", "blue", "green", "green"]

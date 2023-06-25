@@ -34,7 +34,7 @@ def ejercicio_1_no_noise(data, test):
       error_val = 1 - accuracy_score(y_val, results_val)
       error_test = 1 - accuracy_score(y_test, results_test)
 
-      errors.append([n ,error_train, error_val, error_test])
+      errors.append([n, error_train, error_val, error_test])
 
       if error_val < best_error_val:
          best_error_val = error_val
@@ -42,9 +42,11 @@ def ejercicio_1_no_noise(data, test):
          best_results = results_test
   
   df_errors = pd.DataFrame(errors, columns=["N", "Error Train", "Error Val", "Error Test"])
-  print(df_errors)
   print("The best N: " + str(best_n) + " with error: " + str(best_error_val))
 
+  print(df_errors)
+  plot_knn_errors(df_errors)
+  
   plot(test, title="Original")
 
   # Tree Clasifier
@@ -85,7 +87,7 @@ def ejercicio_1_noise(data, test):
       error_val = 1 - accuracy_score(y_val, results_val)
       error_test = 1 - accuracy_score(y_test, results_test)
 
-      errors.append([n ,error_train, error_val, error_test])
+      errors.append([n, error_train, error_val, error_test])
 
       if error_val < best_error_val:
          best_error_val = error_val
@@ -93,8 +95,10 @@ def ejercicio_1_noise(data, test):
          best_results = results_test
   
   df_errors = pd.DataFrame(errors, columns=["N", "Error Train", "Error Val", "Error Test"])
-  print(df_errors)
   print("The best N: " + str(best_n) + " with error: " + str(best_error_val))
+  
+  print(df_errors)
+  plot_knn_errors(df_errors)
 
   test.drop(["2", "3"], axis=1)
 
