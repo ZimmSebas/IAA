@@ -6,7 +6,6 @@ from copy import deepcopy
 from matplotlib import pyplot as mpl
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import fetch_20newsgroups
-from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 
 def bayes_train(X_train, y_train, X_test, y_test):
