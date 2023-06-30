@@ -306,7 +306,7 @@ def ejercicio_5():
                 best_error_val = error_val
                 best_alfa = alfa
                 best_size = size_dic
-                best_error_test = deepcopy(error_test)
+                best_error_test = deepcopy(results_test)
     
     print("Best combination alfa: " + str(best_alfa) + " size: " + str(best_size) + " has error: " + str(best_error_val))
 
