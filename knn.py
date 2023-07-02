@@ -4,7 +4,7 @@ from copy import deepcopy
 from matplotlib import pyplot as mpl
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, mean_squared_error
 from tree import entrenar, clasificar
 
 def ejercicio_1_no_noise(data, test):
@@ -381,4 +381,95 @@ def ejercicio_3():
 
   df_errors = pd.DataFrame(errors, columns=["Error", "D", "Type"])
   plot_error_lines_with_dimensions(df_errors)
+
+
+def knn_train_regr(n, X_train, y_train, X_val, y_val, X_test, y_test, w):
+  knclf = KNeighborsRegressor(n, weights=w)
+
+  knclf.fit(X_train, np.ravel(y_train))
+
+  results_test = knclf.predict(X_test)
+  results_val = knclf.predict(X_val)
+  results_train = knclf.predict(X_train)
+
+  error_train = mean_squared_error(y_train, results_train)
+  error_val = mean_squared_error(y_val, results_val)
+  error_test = mean_squared_error(y_test, results_test)
+
+  return error_train, error_val, error_test
+
+
+def ejercicio_4_ikeda():
+  
+  columns = list(range(5)) + ["Class"]
+
+  data = pd.read_csv(
+    "TP_2/ikeda.data",
+    names=columns,
+    header=None,
+    skipinitialspace=True,
+    delim_whitespace=True,
+  )
+  test = pd.read_csv(
+    "TP_2/ikeda.test",
+    names=columns,
+    header=None,
+    skipinitialspace=True,
+    delim_whitespace=True,
+  )
+
+  X_raw, y_raw = data.iloc[:, :-1], data.iloc[:, -1:]
+  X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
+
+  X_train, X_val, y_train, y_val = train_test_split(
+    X_raw, y_raw, test_size=0.2, random_state=42
+  )
+  
+  errors = []
+
+  table = []
+
+  k_values = range(1,50)
+
+  best_val_error_uniform = 1
+
+  for k in k_values:
+    error_train_uniform, error_val_uniform, error_test_uniform = knn_train_regr(k, X_train, y_train, X_val, y_val, X_test, y_test, 'uniform')  
+    
+    if error_val_uniform < best_val_error_uniform:
+      best_val_error_uniform = error_val_uniform
+      best_test_error_uniform = error_test_uniform
+      best_train_error_uniform = error_train_uniform
+      best_k_uniform = k
+
+    errors.append([error_train_uniform, k, "Train Error Uniform"])
+    errors.append([error_val_uniform, k, "Val Error Uniform"])
+    errors.append([error_test_uniform, k, "Test Error Uniform"])
+
+  best_val_error_distance = 1
+
+  for k in k_values:
+    error_train_distance, error_val_distance, error_test_distance = knn_train_regr(k, X_train, y_train, X_val, y_val, X_test, y_test, 'distance')  
+    
+    if error_val_distance < best_val_error_distance:
+      best_val_error_distance = error_val_distance
+      best_test_error_distance = error_test_distance
+      best_train_error_distance = error_train_distance
+      best_k_distance = k
+  
+    errors.append([error_train_distance, k, "Train Error Distance"])
+    errors.append([error_val_distance, k, "Val Error Distance"])
+    errors.append([error_test_distance, k, "Test Error Distance"])  
+
+  table.append(["KNN Uniform "+str(best_k_uniform), best_test_error_uniform, best_train_error_uniform])
+  table.append(["KNN Distance "+str(best_k_distance), best_test_error_distance, best_train_error_distance])
+  table.append(["ANN", 0.01, 0.01]) # TO DO: Put actual values
+
+  df_table = pd.DataFrame(table)
+  print(df_table)
+
+  df_errors = pd.DataFrame(errors, columns=["Error", "D", "Type"]) #TO DO: Change to an actual function that prints this thing
+  plot_error_lines_with_dimensions(df_errors)
+  
+
 
