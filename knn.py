@@ -174,22 +174,35 @@ def ejercicio_2():
       test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
       X_test, y_test = test_case_a.iloc[:, :-1], test_case_a.iloc[:, -1:]
 
-      test_error_para = 0.0
-      values_error_para = 0.0
-      test_error_diag = 0.0
-      values_error_diag = 0.0
+      test_error_para_1 = 0.0
+      values_error_para_1 = 0.0
+      test_error_para_k = 0.0
+      values_error_para_k = 0.0
+      test_error_diag_1 = 0.0
+      values_error_diag_1 = 0.0
+      test_error_diag_k = 0.0
+      values_error_diag_k = 0.0
 
       for j in range(20):
           values = generar_valores(centros_a, c * sqrt(d), d, n)
-          X_train, y_train = values.iloc[:, :-1], values.iloc[:, -1:]
+          X_raw, y_raw = values.iloc[:, :-1], values.iloc[:, -1:]
 
-          v_errors, t_errors = knn_train(X_train, y_train, X_val, y_val, X_test, y_test)
+          X_train, X_val, y_train, y_val = train_test_split(
+              X_raw, y_raw, test_size=0.2, random_state=42
+          )
 
-          test_error_para += t_errors
-          values_error_para += v_errors
+          _, error_val_1, error_test_1 = knn_train(1, X_train, y_train, X_val, y_val, X_test, y_test)
+          _, error_val_k, error_test_k = knn_train(2, X_train, y_train, X_val, y_val, X_test, y_test)
 
-      test_error_para = test_error_para / 20
-      values_error_para = values_error_para / 20
+          values_error_para_1 += error_val_1
+          test_error_para_1 += error_test_1
+          values_error_para_k += error_val_k
+          test_error_para_k += error_test_k
+
+      test_error_para_1 = test_error_para_1 / 20
+      values_error_para_1 = values_error_para_1 / 20
+      test_error_para_k = test_error_para_k / 20
+      values_error_para_k = values_error_para_k / 20
 
       centros_b = centros_ejb(d)
       test_case_b = generar_valores(centros_b, c, d, 10000)
@@ -197,20 +210,30 @@ def ejercicio_2():
 
       for j in range(20):
           values = generar_valores(centros_b, c, d, n)
-          X_train, y_train = values.iloc[:, :-1], values.iloc[:, -1:]
+          X_raw, y_raw = values.iloc[:, :-1], values.iloc[:, -1:]
 
-          v_errors, t_errors = knn_train(X_train, y_train, X_test, y_test)
+          X_train, X_val, y_train, y_val = train_test_split(
+              X_raw, y_raw, test_size=0.2, random_state=42
+          )
 
-          test_error_diag += t_errors
-          values_error_diag += v_errors
+          _, error_val_1, error_test_1 = knn_train(1, X_train, y_train, X_val, y_val, X_test, y_test)
+          _, error_val_k, error_test_k = knn_train(2, X_train, y_train, X_val, y_val, X_test, y_test)
 
-      test_error_diag = test_error_diag / 20
-      values_error_diag = values_error_diag / 20
 
-      errors.append([test_error_para, d, "Test_Parallel_BY"])
-      errors.append([values_error_para, d, "Val_Parallel_BY"])
-      errors.append([test_error_diag, d, "Test_Diagonal_BY"])
-      errors.append([values_error_diag, d, "Val_Diagonal_BY"])
+          test_error_diag_1 += error_test_1
+          values_error_diag_1 += error_val_1
+          test_error_diag_k += error_test_k
+          values_error_diag_k += error_val_k
+
+      test_error_diag_1 = test_error_diag_1 / 20
+      values_error_diag_1 = values_error_diag_1 / 20
+      test_error_diag_k = test_error_diag_k / 20
+      values_error_diag_k = values_error_diag_k / 20
+
+      errors.append([test_error_para_1, d, "Test_Parallel_KN1"])
+      errors.append([values_error_para_1, d, "Val_Parallel_KN1"])
+      errors.append([test_error_diag_1, d, "Test_Diagonal_KN1"])
+      errors.append([values_error_diag_1, d, "Val_Diagonal_KN1"])
 
   df_errors = pd.DataFrame(errors, columns=["Error", "D", "Type"])
   df_errors.to_csv("TP_4/errors_ej_2.csv", index=False)
