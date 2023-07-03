@@ -92,9 +92,13 @@ def plot_error_lines_with_dimensions(error_dataframe):
         "firebrick",
         "firebrick",
         "slategrey",
-        "slategrey"
+        "slategrey",
+        "cadetblue",
+        "cadetblue",
+        "chocolate",
+        "chocolate"
     ]
-    line = [":", "-", ":", "-", ":", "-", ":", "-", ":", "-", ":", "-", ":", "-", ":", "-"]
+    line = [":", "-", ":", "-", ":", "-", ":", "-", ":", "-", ":", "-", ":", "-", ":", "-", ":", "-", ":", "-"]
 
     types = list(pd.unique(error_dataframe["Type"]))
 

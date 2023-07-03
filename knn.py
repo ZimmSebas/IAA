@@ -234,6 +234,10 @@ def ejercicio_2():
       errors.append([values_error_para_1, d, "Val_Parallel_KN1"])
       errors.append([test_error_diag_1, d, "Test_Diagonal_KN1"])
       errors.append([values_error_diag_1, d, "Val_Diagonal_KN1"])
+      errors.append([test_error_para_k, d, "Test_Parallel_KNK"])
+      errors.append([values_error_para_k, d, "Val_Parallel_KNK"])
+      errors.append([test_error_diag_k, d, "Test_Diagonal_KNK"])
+      errors.append([values_error_diag_k, d, "Val_Diagonal_KNK"])
 
   df_errors = pd.DataFrame(errors, columns=["Error", "D", "Type"])
   df_errors.to_csv("TP_4/errors_ej_2.csv", index=False)
@@ -248,3 +252,6 @@ def ejercicio_2_print():
     print(df_errors)
     plot_error_lines_with_dimensions(df_errors)
 
+
+def ejercicio_3():
+   return
