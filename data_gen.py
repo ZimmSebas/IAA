@@ -154,6 +154,27 @@ def plot_knn_errors(df_results, title=None):
     mpl.show()
 
 
+def plot_knn_errors_compared(error_dataframe, title=None):
+    colors = ["red", "red", "red", "blue", "blue", "blue"]
+    linestyles = [":", "-.", "-", ":", "-.", "-"]
+    types = list(pd.unique(error_dataframe["Type"]))
+
+    mpl.title(title)
+    
+    for i in range(len(types)):
+    
+        df = error_dataframe[error_dataframe["Type"] == types[i]]
+        mpl.plot(
+            df["K"], df["Error"], color=colors[i], label=types[i], linestyle=linestyles[i],
+        )
+
+    mpl.xlabel("K")
+    mpl.ylabel("Errors")
+    mpl.legend()
+
+    mpl.show()
+
+
 def plot_error_lines(results, labels, sizes):
     colors = ["red", "red", "blue", "blue", "green", "green"]
     line = ["-", "-", "-", "-", "-", "-"]
