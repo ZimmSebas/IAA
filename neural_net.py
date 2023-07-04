@@ -315,18 +315,10 @@ def ejercicio_4():
     columns = list(range(5)) + ["Class"]
 
     data = pd.read_csv(
-        "TP_2/ssp.data",
-        names=columns,
-        sep=",",
-        header=None,
-        skipinitialspace=True,
+        "TP_2/ssp.data", names=columns, sep=",", header=None, skipinitialspace=True,
     )
     test = pd.read_csv(
-        "TP_2/ssp.test",
-        names=columns,
-        sep=",",
-        header=None,
-        skipinitialspace=True,
+        "TP_2/ssp.test", names=columns, sep=",", header=None, skipinitialspace=True,
     )
 
     X_train, y_train = data.iloc[:, :-1], data.iloc[:, -1:]
@@ -378,7 +370,7 @@ def ejercicio_5():
     evaluaciones = 400
     N2 = 6
     epocas_por_entrenamiento = 20
-    gamma = 10**-5
+    gamma = 10 ** -5
     c = 0.78
     n = 250
 
@@ -457,11 +449,7 @@ def plot_error_lines_with_dimensions(error_dataframe):
     for i in range(len(types)):
         df = error_dataframe[error_dataframe["Type"] == types[i]]
         mpl.plot(
-            df["D"],
-            df["Error"],
-            color=colors[i],
-            label=types[i],
-            linestyle=line[i],
+            df["D"], df["Error"], color=colors[i], label=types[i], linestyle=line[i],
         )
 
     mpl.xlabel("Sizes")

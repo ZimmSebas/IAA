@@ -4,7 +4,8 @@ from data_gen import *
 from matplotlib import pyplot as mpl
 from csv import reader
 from sklearn import tree
-#import graphviz
+
+# import graphviz
 
 
 def espirales_entrenados(n, test_case):
