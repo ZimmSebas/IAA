@@ -292,13 +292,9 @@ def choose_best_k():
 
     print("The best K parallel is " + str(best_k_para))
 
-    c = 0.78
-    n = 250
-    d = 32
-
     centros_b = centros_ejb(d)
 
-    test_case_b = generar_valores(centros_b, c * sqrt(d), d, 10000)
+    test_case_b = generar_valores(centros_b, c, d, 10000)
     X_test, y_test = test_case_b.iloc[:, :-1], test_case_b.iloc[:, -1:]
 
     values = generar_valores(centros_b, c, d, n)
@@ -598,3 +594,178 @@ def ejercicio_4_ssp():
         errors, columns=["Error", "K", "Type"]
     )  # TO DO: Change to an actual function that prints this thing
     plot_knn_errors_compared(df_errors)
+
+
+def knn_radius_train(r, X_train, y_train, X_val, y_val, X_test, y_test, w=False):
+    
+    knclf = KNeighborsClassifier(radius=r, weights="distance")
+
+    knclf.fit(X_train, np.ravel(y_train))
+
+    results_test = knclf.predict(X_test)
+    results_val = knclf.predict(X_val)
+    results_train = knclf.predict(X_train)
+
+    error_train = 1 - accuracy_score(y_train, results_train)
+    error_val = 1 - accuracy_score(y_val, results_val)
+    error_test = 1 - accuracy_score(y_test, results_test)
+
+    return error_train, error_val, error_test
+
+
+def choose_best_r():
+
+    c = 0.78
+    n = 250
+    d = 32
+
+    centros_a = centros_eja(d)
+
+    test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
+    X_test, y_test = test_case_a.iloc[:, :-1], test_case_a.iloc[:, -1:]
+
+    values = generar_valores(centros_a, c * sqrt(d), d, n)
+    X_raw, y_raw = values.iloc[:, :-1], values.iloc[:, -1:]
+
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_raw, y_raw, test_size=0.2, random_state=42
+    )
+
+    best_error_val = 1
+
+    for r in SOMETHING:
+        _, error_val, _ = knn_radius_train(
+            r, X_train, y_train, X_val, y_val, X_test, y_test
+        )
+
+        if error_val < best_error_val:
+            best_error_val = error_val
+            best_r_para = r
+
+    print("The best R parallel is " + str(best_r_para))
+
+    centros_b = centros_ejb(d)
+
+    test_case_b = generar_valores(centros_b, c, d, 10000)
+    X_test, y_test = test_case_b.iloc[:, :-1], test_case_b.iloc[:, -1:]
+
+    values = generar_valores(centros_b, c, d, n)
+    X_raw, y_raw = values.iloc[:, :-1], values.iloc[:, -1:]
+
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_raw, y_raw, test_size=0.2, random_state=42
+    )
+
+    best_error_val = 1
+
+    for r in SOMETHING:
+        _, error_val, _ = knn_radius_train(
+            r, X_train, y_train, X_val, y_val, X_test, y_test
+        )
+
+        if error_val < best_error_val:
+            best_error_val = error_val
+            best_r_diag = r
+
+    print("The best R diagonal is " + str(best_r_diag))
+
+    return best_r_para, best_r_diag
+
+
+def ejercicio_5():
+    c = 0.78
+    n = 250
+
+    d_values = [2, 4, 8, 16, 32]
+
+    k_optimo_para, k_optimo_diag = choose_best_k()
+    r_optimo_para, r_optimo_diag = choose_best_r()
+
+    errors = []
+
+    for d in d_values:
+        centros_a = centros_eja(d)
+
+        test_case_a = generar_valores(centros_a, c * sqrt(d), d, 10000)
+        X_test, y_test = test_case_a.iloc[:, :-1], test_case_a.iloc[:, -1:]
+
+        values = generar_valores(centros_a, c * sqrt(d), d, n)
+        X_raw, y_raw = values.iloc[:, :-1], values.iloc[:, -1:]
+
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_raw, y_raw, test_size=0.2, random_state=42
+        )
+
+        error_train_r_best, _, error_test_r_best = knn_radius_train(
+            r_optimo_para, X_train, y_train, X_val, y_val, X_test, y_test
+        )
+
+        error_train_w_50, _, error_test_w_50 = knn_train(
+            50, X_train, y_train, X_val, y_val, X_test, y_test, w=True
+        )
+        error_train_w_best, _, error_test_w_best = knn_train(
+            k_optimo_para, X_train, y_train, X_val, y_val, X_test, y_test, w=True
+        )
+
+        error_train_1, _, error_test_1 = knn_train(
+            1, X_train, y_train, X_val, y_val, X_test, y_test
+        )
+        error_train_k, _, error_test_k = knn_train(
+            2, X_train, y_train, X_val, y_val, X_test, y_test
+        )
+
+        errors.append([error_test_1, d, "Test_Parallel_KN1"])
+        errors.append([error_train_1, d, "Val_Parallel_KN1"])
+        errors.append([error_test_k, d, "Test_Parallel_KNK"])
+        errors.append([error_train_k, d, "Val_Parallel_KNK"])
+        errors.append([error_test_w_50, d, "Test_Parallel_Weight_KN50"])
+        errors.append([error_train_w_50, d, "Val_Parallel_Weight_KN50"])
+        errors.append([error_test_w_best, d, "Test_Parallel_Weight_KNBest"])
+        errors.append([error_train_w_best, d, "Val_Parallel_Weight_KNBest"])
+        errors.append([error_test_r_best, d, "Test_Parallel_Radius_KNBest"])
+        errors.append([error_train_r_best, d, "Val_Parallel_Radius_KNBest"])
+
+    for d in d_values:
+        centros_b = centros_ejb(d)
+
+        test_case_b = generar_valores(centros_b, c, d, 10000)
+        X_test, y_test = test_case_b.iloc[:, :-1], test_case_b.iloc[:, -1:]
+
+        values = generar_valores(centros_b, c * sqrt(d), d, n)
+        X_raw, y_raw = values.iloc[:, :-1], values.iloc[:, -1:]
+
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_raw, y_raw, test_size=0.2, random_state=42
+        )
+
+        error_train_r_best, _, error_test_r_best = knn_radius_train(
+            r_optimo_diag, X_train, y_train, X_val, y_val, X_test, y_test
+        )
+
+        error_train_w_50, _, error_test_w_50 = knn_train(
+            50, X_train, y_train, X_val, y_val, X_test, y_test, w=True
+        )
+        error_train_w_best, _, error_test_w_best = knn_train(
+            k_optimo_diag, X_train, y_train, X_val, y_val, X_test, y_test, w=True
+        )
+
+        error_train_1, _, error_test_1 = knn_train(
+            1, X_train, y_train, X_val, y_val, X_test, y_test
+        )
+        error_train_k, _, error_test_k = knn_train(
+            2, X_train, y_train, X_val, y_val, X_test, y_test
+        )
+
+        errors.append([error_test_1, d, "Test_Diagonal_KN1"])
+        errors.append([error_train_1, d, "Val_Diagonal_KN1"])
+        errors.append([error_test_k, d, "Test_Diagonal_KNK"])
+        errors.append([error_train_k, d, "Val_Diagonal_KNK"])
+        errors.append([error_test_w_50, d, "Test_Diagonal_Weight_KN50"])
+        errors.append([error_train_w_50, d, "Val_Diagonal_Weight_KN50"])
+        errors.append([error_test_w_best, d, "Test_Diagonal_Weight_KNBest"])
+        errors.append([error_train_w_best, d, "Val_Diagonal_Weight_KNBest"])
+        errors.append([error_test_r_best, d, "Test_Diagonal_Weight_KNBest"])
+        errors.append([error_train_r_best, d, "Val_Diagonal_Weight_KNBest"])
+
+    df_errors = pd.DataFrame(errors, columns=["Error", "D", "Type"])
+    plot_error_lines_with_dimensions(df_errors)
