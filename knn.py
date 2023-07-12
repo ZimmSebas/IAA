@@ -3,7 +3,7 @@ from data_gen import *
 from copy import deepcopy
 from matplotlib import pyplot as mpl
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor, RadiusNeighborsRegressor
 from sklearn.metrics import accuracy_score, mean_squared_error
 from tree import entrenar, clasificar
 
@@ -596,22 +596,21 @@ def ejercicio_4_ssp():
     plot_knn_errors_compared(df_errors)
 
 
-def knn_radius_train(r, X_train, y_train, X_val, y_val, X_test, y_test, w=False):
+def knn_radius_train(r, X_train, y_train, X_val, y_val, X_test, y_test):
     
-    knclf = KNeighborsClassifier(radius=r, weights="distance")
+    radnn = RadiusNeighborsRegressor(radius=r, weights="distance")
+    
+    radnn.fit(X_train, y_train)
+ 
+    results_test = radnn.predict(X_test)
+    results_val = radnn.predict(X_val)
+    results_train = radnn.predict(X_train)
 
-    knclf.fit(X_train, np.ravel(y_train))
-
-    results_test = knclf.predict(X_test)
-    results_val = knclf.predict(X_val)
-    results_train = knclf.predict(X_train)
-
-    error_train = 1 - accuracy_score(y_train, results_train)
-    error_val = 1 - accuracy_score(y_val, results_val)
-    error_test = 1 - accuracy_score(y_test, results_test)
+    error_train = mean_squared_error(y_train, results_train)
+    error_val = mean_squared_error(y_val, results_val)
+    error_test = mean_squared_error(y_test, results_test)
 
     return error_train, error_val, error_test
-
 
 def choose_best_r():
 
@@ -633,7 +632,9 @@ def choose_best_r():
 
     best_error_val = 1
 
-    for r in SOMETHING:
+    r_values = np.arange(0.01, 0.1, 0.01)
+
+    for r in r_values:
         _, error_val, _ = knn_radius_train(
             r, X_train, y_train, X_val, y_val, X_test, y_test
         )
@@ -658,7 +659,7 @@ def choose_best_r():
 
     best_error_val = 1
 
-    for r in SOMETHING:
+    for r in r_values:
         _, error_val, _ = knn_radius_train(
             r, X_train, y_train, X_val, y_val, X_test, y_test
         )
@@ -769,3 +770,24 @@ def ejercicio_5():
 
     df_errors = pd.DataFrame(errors, columns=["Error", "D", "Type"])
     plot_error_lines_with_dimensions(df_errors)
+
+
+def pick_rs():
+  c = 0.78
+  n = 250
+  d = 32
+  centros_a = centros_eja(d)
+
+  values = generar_valores(centros_a, c * sqrt(d), d, n)
+
+  values_list = values.iloc[:, :-1].values
+
+  
+  distances = []
+  
+  for v in values_list:
+    for u in values_list:
+      distances.append(dist(v,u))
+  
+  print(distances)
+  
