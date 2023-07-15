@@ -1,7 +1,4 @@
-from sklearn.naive_bayes import GaussianNB, CategoricalNB, MultinomialNB
 from data_gen import *
-from copy import deepcopy
-from matplotlib import pyplot as mpl
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor, RadiusNeighborsRegressor
 from sklearn.metrics import accuracy_score, mean_squared_error
