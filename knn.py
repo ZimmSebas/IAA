@@ -49,12 +49,12 @@ def ejercicio_1_no_noise(data, test):
 
     plot(test, title="Original")
 
-    # Tree Clasifier
+    # Tree Classifier
     tree_clf = entrenar(data)
     df_results_tree = clasificar(test, tree_clf)
     plot(df_results_tree, title="Tree")
 
-    # KNN Clasifier
+    # KNN Classifier
     df_results_knn = X_test.copy()
     df_results_knn["Class"] = best_results
     plot(df_results_knn, title="KNN")
@@ -106,13 +106,13 @@ def ejercicio_1_noise(data, test):
 
     plot(test, title="Original")
 
-    # Tree Clasifier
+    # Tree Classifier
     tree_clf = entrenar(data)
     df_results_tree = clasificar(test, tree_clf)
     df_results_tree.drop(["2", "3"], axis=1)
     plot(df_results_tree, title="Tree")
 
-    # KNN Clasifier
+    # KNN Classifier
     df_results_knn = X_test.copy()
     df_results_knn["Class"] = best_results
     df_results_knn.drop(["2", "3"], axis=1)
@@ -589,7 +589,7 @@ def ejercicio_4_ssp():
 
     df_errors = pd.DataFrame(
         errors, columns=["Error", "K", "Type"]
-    )  # TO DO: Change to an actual function that prints this thing
+    )  
     plot_knn_errors_compared(df_errors)
 
 
