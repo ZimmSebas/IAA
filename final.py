@@ -127,3 +127,58 @@ def ejercicio_2():
   df_test_errors = pd.DataFrame(errors, columns = ["d1", "d2", "Test error"])
   print(df_test_errors)
   plot_errors(df_errors, "Errores por época")
+
+
+def ejercicio_3():
+  X_raw, y_raw, X_test, y_test = preprocess_cifar10_dataset()
+  X_train, X_val, y_train, y_val = train_test_split(X_raw, y_raw, random_state=0, test_size=0.2)
+
+  errors = []
+  test_errors = []
+  epocas = 50 
+  
+  img_height = 32
+  img_width = 32
+  data_augmentation = tf.keras.Sequential(
+    [
+      layers.RandomFlip("horizontal", input_shape=(img_height, img_width, 3)),
+      layers.RandomRotation(0.1),
+      layers.RandomZoom(0.1),
+    ]
+  )
+  model = models.Sequential()
+  model.add(data_augmentation)
+  model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3), padding='same'))
+  model.add(layers.MaxPooling2D((2, 2)))
+  model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
+  model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
+  model.add(layers.MaxPooling2D((2, 2)))
+  model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
+  model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
+  model.add(layers.Dropout(0.5, seed=42))
+  model.add(layers.Flatten())
+  model.add(layers.Dense(64))
+  model.add(layers.Dropout(0.5, seed=42))
+  model.add(layers.Dense(128))
+  model.add(layers.Dense(128))
+  model.add(layers.Dense(10))
+
+
+  model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+  history = model.fit(X_train, y_train, epochs=epocas, 
+                      validation_data=(X_val, y_val))
+  _, error_test = model.evaluate(X_test,  y_test, verbose=0)
+  test_errors.append([d1, d2, error_test])        
+
+  for i in range(epocas):
+      errors.append([1 - history.history['accuracy'][i], i + 1, "Train error on d1: " + str(d1) + ", d2: " + str(d2)])
+      errors.append([1 - history.history['val_accuracy'][i], i + 1, "Validation error on d1: " + str(d1) + ", d2: " + str(d2)])
+  print(errors)
+
+
+  df_errors = pd.DataFrame(errors, columns = ["Error", "Épocas", "Clase"])
+  df_test_errors = pd.DataFrame(errors, columns = ["d1", "d2", "Test error"])
+  print(df_test_errors)
+  plot_errors(df_errors, "Errores por época")
