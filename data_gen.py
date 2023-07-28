@@ -117,7 +117,7 @@ def plot_error_lines_with_dimensions(error_dataframe):
         "-",
     ]
 
-    types = list(pd.unique(error_dataframe["Type"]))
+    types = list(pd.unique(error_dataframe["Test error"]))
 
     for i in range(len(types)):
         df = error_dataframe[error_dataframe["Type"] == types[i]]
@@ -160,12 +160,16 @@ def plot_knn_errors_compared(error_dataframe, title=None):
     types = list(pd.unique(error_dataframe["Type"]))
 
     mpl.title(title)
-    
+
     for i in range(len(types)):
-    
+
         df = error_dataframe[error_dataframe["Type"] == types[i]]
         mpl.plot(
-            df["K"], df["Error"], color=colors[i], label=types[i], linestyle=linestyles[i],
+            df["K"],
+            df["Error"],
+            color=colors[i],
+            label=types[i],
+            linestyle=linestyles[i],
         )
 
     mpl.xlabel("K")

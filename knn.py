@@ -1,6 +1,10 @@
 from data_gen import *
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor, RadiusNeighborsRegressor
+from sklearn.neighbors import (
+    KNeighborsClassifier,
+    KNeighborsRegressor,
+    RadiusNeighborsRegressor,
+)
 from sklearn.metrics import accuracy_score, mean_squared_error
 from tree import entrenar, clasificar
 
@@ -421,93 +425,91 @@ def knn_train_regr(n, X_train, y_train, X_val, y_val, X_test, y_test, w):
 
 def ejercicio_4_ikeda():
 
-  columns = list(range(5)) + ["Class"]
+    columns = list(range(5)) + ["Class"]
 
-  data = pd.read_csv(
-      "TP_2/ikeda.data",
-      names=columns,
-      header=None,
-      skipinitialspace=True,
-      delim_whitespace=True,
-  )
-  test = pd.read_csv(
-      "TP_2/ikeda.test",
-      names=columns,
-      header=None,
-      skipinitialspace=True,
-      delim_whitespace=True,
-  )
-
-  X_raw, y_raw = data.iloc[:, :-1], data.iloc[:, -1:]
-  X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
-
-  X_train, X_val, y_train, y_val = train_test_split(
-      X_raw, y_raw, test_size=0.2, random_state=42
-  )
-
-  errors = []
-
-  table = []
-
-  k_values = range(1, 50)
-
-  best_val_error_uniform = 1
-
-  for k in k_values:
-    error_train_uniform, error_val_uniform, error_test_uniform = knn_train_regr(
-      k, X_train, y_train, X_val, y_val, X_test, y_test, "uniform"
+    data = pd.read_csv(
+        "TP_2/ikeda.data",
+        names=columns,
+        header=None,
+        skipinitialspace=True,
+        delim_whitespace=True,
+    )
+    test = pd.read_csv(
+        "TP_2/ikeda.test",
+        names=columns,
+        header=None,
+        skipinitialspace=True,
+        delim_whitespace=True,
     )
 
-    if error_val_uniform < best_val_error_uniform:
-      best_val_error_uniform = error_val_uniform
-      best_test_error_uniform = error_test_uniform
-      best_train_error_uniform = error_train_uniform
-      best_k_uniform = k
+    X_raw, y_raw = data.iloc[:, :-1], data.iloc[:, -1:]
+    X_test, y_test = test.iloc[:, :-1], test.iloc[:, -1:]
 
-    errors.append([error_train_uniform, k, "Train_Error_Uniform"])
-    errors.append([error_val_uniform, k, "Val_Error_Uniform"])
-    errors.append([error_test_uniform, k, "Test_Error_Uniform"])
-
-  best_val_error_distance = 1
-
-  for k in k_values:
-    error_train_distance, error_val_distance, error_test_distance = knn_train_regr(
-      k, X_train, y_train, X_val, y_val, X_test, y_test, "distance"
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_raw, y_raw, test_size=0.2, random_state=42
     )
 
-    if error_val_distance < best_val_error_distance:
-      best_val_error_distance = error_val_distance
-      best_test_error_distance = error_test_distance
-      best_train_error_distance = error_train_distance
-      best_k_distance = k
+    errors = []
 
-    errors.append([error_train_distance, k, "Train_Error_Distance"])
-    errors.append([error_val_distance, k, "Val_Error_Distance"])
-    errors.append([error_test_distance, k, "Test_Error_Distance"])
+    table = []
 
-  table.append(
-    [
-      "KNN Uniform " + str(best_k_uniform),
-      best_test_error_uniform,
-      best_train_error_uniform,
-    ]
-  )
-  table.append(
-    [
-      "KNN Distance " + str(best_k_distance),
-      best_test_error_distance,
-      best_train_error_distance,
-    ]
-  )
-  table.append(["ANN", 0.0893893230149656, 0.0278846280649443])
+    k_values = range(1, 50)
 
-  df_table = pd.DataFrame(table)
-  print(df_table)
+    best_val_error_uniform = 1
 
-  df_errors = pd.DataFrame(
-      errors, columns=["Error", "K", "Type"]
-  )  
-  plot_knn_errors_compared(df_errors)
+    for k in k_values:
+        error_train_uniform, error_val_uniform, error_test_uniform = knn_train_regr(
+            k, X_train, y_train, X_val, y_val, X_test, y_test, "uniform"
+        )
+
+        if error_val_uniform < best_val_error_uniform:
+            best_val_error_uniform = error_val_uniform
+            best_test_error_uniform = error_test_uniform
+            best_train_error_uniform = error_train_uniform
+            best_k_uniform = k
+
+        errors.append([error_train_uniform, k, "Train_Error_Uniform"])
+        errors.append([error_val_uniform, k, "Val_Error_Uniform"])
+        errors.append([error_test_uniform, k, "Test_Error_Uniform"])
+
+    best_val_error_distance = 1
+
+    for k in k_values:
+        error_train_distance, error_val_distance, error_test_distance = knn_train_regr(
+            k, X_train, y_train, X_val, y_val, X_test, y_test, "distance"
+        )
+
+        if error_val_distance < best_val_error_distance:
+            best_val_error_distance = error_val_distance
+            best_test_error_distance = error_test_distance
+            best_train_error_distance = error_train_distance
+            best_k_distance = k
+
+        errors.append([error_train_distance, k, "Train_Error_Distance"])
+        errors.append([error_val_distance, k, "Val_Error_Distance"])
+        errors.append([error_test_distance, k, "Test_Error_Distance"])
+
+    table.append(
+        [
+            "KNN Uniform " + str(best_k_uniform),
+            best_test_error_uniform,
+            best_train_error_uniform,
+        ]
+    )
+    table.append(
+        [
+            "KNN Distance " + str(best_k_distance),
+            best_test_error_distance,
+            best_train_error_distance,
+        ]
+    )
+    table.append(["ANN", 0.0893893230149656, 0.0278846280649443])
+
+    df_table = pd.DataFrame(table)
+    print(df_table)
+
+    df_errors = pd.DataFrame(errors, columns=["Error", "K", "Type"])
+    plot_knn_errors_compared(df_errors)
 
 
 def ejercicio_4_ssp():
@@ -587,18 +589,16 @@ def ejercicio_4_ssp():
     df_table = pd.DataFrame(table)
     print(df_table)
 
-    df_errors = pd.DataFrame(
-        errors, columns=["Error", "K", "Type"]
-    )  
+    df_errors = pd.DataFrame(errors, columns=["Error", "K", "Type"])
     plot_knn_errors_compared(df_errors)
 
 
 def knn_radius_train(r, X_train, y_train, X_val, y_val, X_test, y_test):
-    
+
     radnn = RadiusNeighborsRegressor(radius=r, weights="distance")
-    
+
     radnn.fit(X_train, y_train)
- 
+
     results_test = radnn.predict(X_test)
     results_val = radnn.predict(X_val)
     results_train = radnn.predict(X_train)
@@ -608,6 +608,7 @@ def knn_radius_train(r, X_train, y_train, X_val, y_val, X_test, y_test):
     error_test = mean_squared_error(y_test, results_test)
 
     return error_train, error_val, error_test
+
 
 def choose_best_r():
 
@@ -770,21 +771,19 @@ def ejercicio_5():
 
 
 def pick_rs():
-  c = 0.78
-  n = 250
-  d = 32
-  centros_a = centros_eja(d)
+    c = 0.78
+    n = 250
+    d = 32
+    centros_a = centros_eja(d)
 
-  values = generar_valores(centros_a, c * sqrt(d), d, n)
+    values = generar_valores(centros_a, c * sqrt(d), d, n)
 
-  values_list = values.iloc[:, :-1].values
+    values_list = values.iloc[:, :-1].values
 
-  
-  distances = []
-  
-  for v in values_list:
-    for u in values_list:
-      distances.append(dist(v,u))
-  
-  print(distances)
-  
+    distances = []
+
+    for v in values_list:
+        for u in values_list:
+            distances.append(dist(v, u))
+
+    print(distances)
